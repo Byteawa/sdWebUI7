@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>sd-server 简易生图</title>
+<title>sd-server 简易生图 · Lora 列表</title>
 <style>
   :root {
     --bg: #16181d;
@@ -24,6 +24,11 @@
     --sidebar-icon: #9aa0a6;
     --sidebar-icon-hover: #e6e6e6;
     --sidebar-icon-bg-hover: #2a2e38;
+    --lora-item-bg: #262a32;
+    --danger: #ff5c5c;
+    --enabled: #4a7dff;
+    --num-btn-bg: #2f3540;
+    --num-btn-hover: #4a7dff;
   }
 
   @media (prefers-color-scheme: light) {
@@ -47,200 +52,227 @@
       --sidebar-icon: #6b7280;
       --sidebar-icon-hover: #1a1d23;
       --sidebar-icon-bg-hover: #dfe2e8;
+      --lora-item-bg: #f0f2f5;
+      --danger: #e53935;
+      --enabled: #3b6fe0;
+      --num-btn-bg: #e8ecf2;
+      --num-btn-hover: #3b6fe0;
     }
   }
 
   html[data-theme="light"] {
-    --bg: #f5f6f8;
-    --text: #1a1d23;
-    --panel-bg: #ffffff;
-    --input-bg: #f0f2f5;
-    --border: #d0d4db;
-    --label: #5f6670;
-    --hint: #8b919b;
-    --accent: #3b6fe0;
-    --preview-border: #d0d4db;
-    --preview-text: #a0a6b0;
-    --badge-bg: #e4e7ec;
-    --badge-text: #6b7280;
-    --toggle-bg: #ffffff;
-    --toggle-border: #d0d4db;
-    --toggle-label: #3a3f48;
-    --sidebar-bg: #eceef2;
-    --sidebar-icon: #6b7280;
-    --sidebar-icon-hover: #1a1d23;
-    --sidebar-icon-bg-hover: #dfe2e8;
+    --bg: #f5f6f8; --text: #1a1d23; --panel-bg: #ffffff; --input-bg: #f0f2f5;
+    --border: #d0d4db; --label: #5f6670; --hint: #8b919b; --accent: #3b6fe0;
+    --preview-border: #d0d4db; --preview-text: #a0a6b0; --badge-bg: #e4e7ec;
+    --badge-text: #6b7280; --toggle-bg: #ffffff; --toggle-border: #d0d4db;
+    --toggle-label: #3a3f48; --sidebar-bg: #eceef2; --sidebar-icon: #6b7280;
+    --sidebar-icon-hover: #1a1d23; --sidebar-icon-bg-hover: #dfe2e8;
+    --lora-item-bg: #f0f2f5; --danger: #e53935; --enabled: #3b6fe0;
+    --num-btn-bg: #e8ecf2; --num-btn-hover: #3b6fe0;
   }
 
   html[data-theme="dark"] {
-    --bg: #16181d;
-    --text: #e6e6e6;
-    --panel-bg: #1e2128;
-    --input-bg: #22252b;
-    --border: #333842;
-    --label: #9aa0a6;
-    --hint: #6b7280;
-    --accent: #4a7dff;
-    --preview-border: #333;
-    --preview-text: #555;
-    --badge-bg: #2a2f3a;
-    --badge-text: #8b93a0;
-    --toggle-bg: #1e2128;
-    --toggle-border: #2c303a;
-    --toggle-label: #c8ccd4;
-    --sidebar-bg: #1a1c22;
-    --sidebar-icon: #9aa0a6;
-    --sidebar-icon-hover: #e6e6e6;
-    --sidebar-icon-bg-hover: #2a2e38;
+    --bg: #16181d; --text: #e6e6e6; --panel-bg: #1e2128; --input-bg: #22252b;
+    --border: #333842; --label: #9aa0a6; --hint: #6b7280; --accent: #4a7dff;
+    --preview-border: #333; --preview-text: #555; --badge-bg: #2a2f3a;
+    --badge-text: #8b93a0; --toggle-bg: #1e2128; --toggle-border: #2c303a;
+    --toggle-label: #c8ccd4; --sidebar-bg: #1a1c22; --sidebar-icon: #9aa0a6;
+    --sidebar-icon-hover: #e6e6e6; --sidebar-icon-bg-hover: #2a2e38;
+    --lora-item-bg: #262a32; --danger: #ff5c5c; --enabled: #4a7dff;
+    --num-btn-bg: #2f3540; --num-btn-hover: #4a7dff;
   }
 
   * { box-sizing: border-box; }
-
   body {
     margin: 0;
     font-family: -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif;
     background: var(--bg); color: var(--text);
     display: flex; min-height: 100vh;
     transition: background 0.2s, color 0.2s;
+    font-size: 14px;
   }
 
-  /* ---------- 左侧栏：完整竖线，贯穿全高 ---------- */
+  /* ---------- 左侧栏 ---------- */
   .sidebar {
-    position: fixed;
-    left: 0; top: 0; bottom: 0;
-    width: 64px;
-    background: var(--sidebar-bg);
-    border-right: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-end;
-    padding: 16px 0 24px;
-    gap: 8px;
-    z-index: 100;
-    transition: background 0.2s, border-color 0.2s;
+    position: fixed; left: 0; top: 0; bottom: 0; width: 64px;
+    background: var(--sidebar-bg); border-right: 1px solid var(--border);
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: flex-end; padding: 16px 0 24px; gap: 8px;
+    z-index: 100; transition: background 0.2s, border-color 0.2s;
   }
-
   .sidebar-btn {
-    width: 42px; height: 42px;
-    display: flex; align-items: center; justify-content: center;
-    border: none; border-radius: 10px;
-    background: transparent;
-    color: var(--sidebar-icon);
-    cursor: pointer;
-    transition: background 0.15s, color 0.15s;
-    padding: 0;
+    width: 42px; height: 42px; display: flex; align-items: center;
+    justify-content: center; border: none; border-radius: 10px;
+    background: transparent; color: var(--sidebar-icon); cursor: pointer;
+    transition: background 0.15s, color 0.15s; padding: 0;
   }
-  .sidebar-btn:hover {
-    background: var(--sidebar-icon-bg-hover);
-    color: var(--sidebar-icon-hover);
-  }
-  .sidebar-btn svg {
-    width: 22px; height: 22px;
-    display: block;
-  }
+  .sidebar-btn:hover { background: var(--sidebar-icon-bg-hover); color: var(--sidebar-icon-hover); }
+  .sidebar-btn svg { width: 22px; height: 22px; display: block; }
 
   /* ---------- 主区域 ---------- */
   .main-area {
-    flex: 1;
-    padding: 24px;
-    padding-left: 88px; /* 为固定侧栏留出空间 */
-    display: flex; gap: 24px;
-    min-height: 100vh;
+    flex: 1; padding: 28px; padding-left: 92px;
+    display: flex; gap: 24px; min-height: 100vh;
   }
-
   .panel {
-    flex: 0 0 440px; display: flex; flex-direction: column; gap: 12px;
-    background: var(--panel-bg); padding: 16px; border-radius: 12px;
-    border: 1px solid var(--border);
-    transition: background 0.2s, border-color 0.2s;
+    flex: 0 0 580px; display: flex; flex-direction: column; gap: 14px;
+    background: var(--panel-bg); padding: 24px; border-radius: 14px;
+    border: 1px solid var(--border); transition: background 0.2s, border-color 0.2s;
+    overflow-y: auto; max-height: calc(100vh - 56px);
   }
-
   .preview {
     flex: 1; display: flex; align-items: center; justify-content: center;
-    border: 1px dashed var(--preview-border); border-radius: 10px; min-height: 300px;
+    border: 1px dashed var(--preview-border); border-radius: 12px; min-height: 300px;
     color: var(--preview-text); font-size: 14px;
     transition: border-color 0.2s, color 0.2s;
+    position: relative; overflow: hidden; background: var(--panel-bg);
   }
-  .preview img { max-width: 100%; max-height: 100%; border-radius: 8px; }
+  .preview img { max-width: 100%; max-height: 100%; border-radius: 8px; display: block; object-fit: contain; }
 
-  label { font-size: 13px; color: var(--label); margin-bottom: -6px; }
+  .download-btn {
+    position: absolute; top: 12px; right: 12px; width: 36px; height: 36px;
+    border-radius: 8px; background: rgba(30, 33, 40, 0.75); backdrop-filter: blur(6px);
+    border: 1px solid var(--border); color: #fff;
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+    transition: background 0.2s, transform 0.15s; z-index: 10;
+    opacity: 0; visibility: hidden; pointer-events: none;
+  }
+  .preview.has-image .download-btn { opacity: 1; visibility: visible; pointer-events: auto; }
+  .download-btn:hover { background: var(--accent); border-color: var(--accent); transform: scale(1.05); }
+  .download-btn svg { width: 20px; height: 20px; stroke: #fff; fill: none; stroke-width: 2; }
 
+  label { font-size: 13.5px; color: var(--label); margin-bottom: -6px; }
   input, textarea, button {
     font: inherit; color: var(--text); background: var(--input-bg);
-    border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px;
+    border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px;
     transition: background 0.2s, border-color 0.2s, color 0.2s;
   }
-  textarea { resize: vertical; }
+  textarea { resize: vertical; font-size: 14px; line-height: 1.5; }
+  input { font-size: 14px; }
   input:focus, textarea:focus { outline: none; border-color: var(--accent); }
-
-  .row { display: flex; gap: 8px; align-items: center; }
+  .row { display: flex; gap: 10px; align-items: center; }
   .row > * { flex: 1; }
-
   button {
     background: var(--accent); border-color: var(--accent); color: #fff;
-    cursor: pointer; font-weight: 600; padding: 10px;
-    transition: opacity 0.2s;
+    cursor: pointer; font-weight: 600; padding: 12px; transition: opacity 0.2s;
+    font-size: 14.5px;
   }
   button:disabled { opacity: .5; cursor: not-allowed; }
-
-  .hint { font-size: 12px; color: var(--hint); }
-  #status { font-size: 13px; min-height: 18px; color: var(--label); }
+  .hint { font-size: 12.5px; color: var(--hint); }
+  #status { font-size: 13.5px; min-height: 18px; color: var(--label); }
 
   .toggle-group {
     display: flex; gap: 16px; align-items: center;
-    background: var(--toggle-bg); border-radius: 8px; padding: 6px 12px;
-    border: 1px solid var(--toggle-border);
-    transition: background 0.2s, border-color 0.2s;
+    background: var(--toggle-bg); border-radius: 10px; padding: 9px 14px;
+    border: 1px solid var(--toggle-border); transition: background 0.2s, border-color 0.2s;
   }
   .toggle-group label {
     display: flex; align-items: center; gap: 6px;
-    color: var(--toggle-label); font-size: 13px; cursor: pointer; margin: 0;
+    color: var(--toggle-label); font-size: 13.5px; cursor: pointer; margin: 0;
   }
   .toggle-group input[type="checkbox"] {
     width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer;
   }
-
   .badge {
-    font-size: 11px; background: var(--badge-bg); border-radius: 4px;
-    padding: 1px 6px; color: var(--badge-text); margin-left: 6px;
+    font-size: 11.5px; background: var(--badge-bg); border-radius: 4px;
+    padding: 2px 7px; color: var(--badge-text); margin-left: 6px;
   }
 
-  .theme-switcher {
-    display: flex; gap: 6px; justify-content: flex-end;
-    margin-bottom: 4px;
+  /* ---------- 数字输入美化（步数/CFG/宽高） ---------- */
+  .params-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px 14px;
   }
+  .params-grid > div {
+    display: flex; flex-direction: column; gap: 3px;
+  }
+  .params-grid label { margin-bottom: 0; }
+
+  /* 自定义数字步进器 — 更顺眼 */
+  .num-wrap {
+    display: flex;
+    align-items: stretch;
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: border-color 0.2s, background 0.2s;
+    height: 42px;
+  }
+  .num-wrap:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(74, 125, 255, 0.15);
+  }
+  .num-wrap input {
+    flex: 1;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    text-align: center;
+    font-weight: 500;
+    font-size: 14px;
+    padding: 0 4px;
+    min-width: 0;
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+  .num-wrap input::-webkit-outer-spin-button,
+  .num-wrap input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  .num-btn {
+    flex: 0 0 32px;
+    border: none;
+    background: var(--num-btn-bg);
+    color: var(--text);
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, color 0.15s;
+    padding: 0;
+    border-radius: 0;
+    user-select: none;
+    opacity: 0.85;
+  }
+  .num-btn:hover {
+    background: var(--num-btn-hover);
+    color: #fff;
+    opacity: 1;
+  }
+  .num-btn:active {
+    opacity: 0.7;
+  }
+  .num-btn.dec { border-right: 1px solid var(--border); }
+  .num-btn.inc { border-left: 1px solid var(--border); }
+
+  .theme-switcher { display: flex; gap: 6px; justify-content: flex-end; margin-bottom: 4px; }
   .theme-switcher button {
-    font-size: 12px; padding: 4px 10px; font-weight: 500;
+    font-size: 12.5px; padding: 5px 12px; font-weight: 500;
     background: var(--input-bg); border: 1px solid var(--border); color: var(--text);
-    border-radius: 6px; cursor: pointer; flex: 0 0 auto;
+    border-radius: 7px; cursor: pointer; flex: 0 0 auto;
     transition: background 0.2s, border-color 0.2s, color 0.2s;
   }
-  .theme-switcher button.active {
-    background: var(--accent); border-color: var(--accent); color: #fff;
-  }
+  .theme-switcher button.active { background: var(--accent); border-color: var(--accent); color: #fff; }
 
   /* ---------- 弹窗 ---------- */
   .modal-overlay {
-    position: fixed; inset: 0;
-    background: rgba(0, 0, 0, 0.5);
+    position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5);
     display: flex; align-items: center; justify-content: center;
-    z-index: 1000;
-    opacity: 0; visibility: hidden;
+    z-index: 1000; opacity: 0; visibility: hidden;
     transition: opacity 0.2s, visibility 0.2s;
   }
-  .modal-overlay.show {
-    opacity: 1; visibility: visible;
-  }
+  .modal-overlay.show { opacity: 1; visibility: visible; }
   .modal {
-    background: var(--panel-bg);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 24px;
-    min-width: 320px; max-width: 400px;
+    background: var(--panel-bg); border: 1px solid var(--border);
+    border-radius: 12px; padding: 24px; min-width: 320px; max-width: 400px;
     box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-    transform: translateY(8px);
-    transition: transform 0.2s;
+    transform: translateY(8px); transition: transform 0.2s;
   }
   .modal-overlay.show .modal { transform: translateY(0); }
   .modal-title {
@@ -248,36 +280,131 @@
     display: flex; align-items: center; gap: 8px;
   }
   .modal-title svg { width: 20px; height: 20px; color: var(--accent); }
-  .modal-body {
-    font-size: 14px; color: var(--label); line-height: 1.6;
-    margin-bottom: 20px;
+  .modal-body { font-size: 14px; color: var(--label); line-height: 1.7; margin-bottom: 20px; }
+  .modal-body .en { color: var(--hint); font-size: 13px; display: block; margin-top: 6px; }
+  .modal-body .ai-note {
+    margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--border);
+    font-size: 13px; color: var(--accent); font-style: italic;
   }
-  .modal-actions {
-    display: flex; justify-content: flex-end;
+  .modal-actions { display: flex; justify-content: flex-end; }
+  .modal-actions button { padding: 8px 20px; font-weight: 500; font-size: 14px; }
+
+  .modal.wide-modal { max-width: 760px; min-width: 480px; width: 90vw; }
+  .lora-list {
+    max-height: 480px; overflow-y: auto; display: flex; flex-direction: column;
+    gap: 6px; margin-bottom: 16px; padding-right: 4px;
   }
-  .modal-actions button {
-    padding: 8px 20px; font-weight: 500; font-size: 14px;
+  .lora-list::-webkit-scrollbar { width: 6px; }
+  .lora-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  .lora-item {
+    background: var(--lora-item-bg); border: 1px solid var(--border);
+    border-radius: 8px; padding: 10px 14px; font-size: 13px; color: var(--text);
+    display: flex; align-items: center; gap: 10px;
+    transition: border-color 0.15s; cursor: pointer; word-break: break-all;
+  }
+  .lora-item:hover { border-color: var(--accent); }
+  .lora-item .lora-icon { flex: 0 0 20px; color: var(--accent); display: flex; align-items: center; }
+  .lora-item .lora-icon svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; }
+  .lora-item .lora-name {
+    flex: 1; font-family: "SF Mono", "Consolas", monospace;
+    font-size: 12.5px; line-height: 1.4;
+  }
+  .lora-empty, .lora-loading { color: var(--hint); font-size: 14px; text-align: center; padding: 30px 0; }
+  .lora-refresh { display: flex; gap: 8px; margin-bottom: 12px; }
+  .lora-refresh button {
+    font-size: 13px; padding: 6px 16px; background: var(--input-bg);
+    border: 1px solid var(--border); color: var(--text); border-radius: 6px;
+    cursor: pointer; font-weight: 500; transition: background 0.15s, border-color 0.15s;
+  }
+  .lora-refresh button:hover { border-color: var(--accent); color: var(--accent); }
+  .lora-count { font-size: 12px; color: var(--hint); margin-bottom: 8px; }
+
+  .selected-loras-wrap {
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .selected-loras-header {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 12.5px; color: var(--hint); margin-bottom: 2px;
+  }
+  .selected-loras-header .clear-all {
+    font-size: 11.5px; background: transparent; border: none; color: var(--danger);
+    cursor: pointer; padding: 0 4px; font-weight: 500;
+  }
+  .selected-loras-header .clear-all:hover { text-decoration: underline; }
+  .selected-loras-list {
+    display: flex; flex-direction: column; gap: 6px;
+    max-height: 220px; overflow-y: auto; padding-right: 2px;
+  }
+  .selected-loras-list::-webkit-scrollbar { width: 5px; }
+  .selected-loras-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  .selected-lora {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--lora-item-bg); border: 1px solid var(--border);
+    border-radius: 8px; padding: 8px 11px; font-size: 13px;
+    transition: border-color 0.15s, opacity 0.15s;
+  }
+  .selected-lora.disabled { opacity: 0.45; }
+  .selected-lora .sl-path {
+    flex: 1; font-family: "SF Mono", "Consolas", monospace;
+    font-size: 12px; word-break: break-all; line-height: 1.35;
+  }
+  .selected-lora .sl-weight {
+    flex: 0 0 62px; width: 62px; padding: 4px 6px; font-size: 12px;
+    text-align: center; background: var(--input-bg);
+    border: 1px solid var(--border); border-radius: 5px;
+  }
+  .selected-lora .sl-btn {
+    flex: 0 0 28px; width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid var(--border); background: transparent;
+    border-radius: 6px; cursor: pointer; padding: 0;
+    color: var(--hint); transition: all 0.15s;
+  }
+  .selected-lora .sl-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .selected-lora .sl-btn.danger:hover { border-color: var(--danger); color: var(--danger); }
+  .selected-lora .sl-btn svg { width: 15px; height: 15px; }
+
+  .sl-toggle {
+    flex: 0 0 24px; width: 24px; height: 24px;
+    border-radius: 5px; border: 2px solid var(--enabled);
+    background: transparent; cursor: pointer; padding: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .sl-toggle.enabled { background: var(--enabled); }
+  .sl-toggle.enabled::after {
+    content: ""; width: 8px; height: 8px; border-radius: 2px; background: #fff;
+  }
+  .sl-toggle:not(.enabled):hover { border-color: var(--accent); }
+
+  .no-selected-hint {
+    font-size: 12.5px; color: var(--hint); text-align: center;
+    padding: 10px 0; border: 1px dashed var(--border); border-radius: 8px;
   }
 </style>
 </head>
 <body>
 
-<!-- 左侧栏：完整竖线，图标从下到上：I -> 齿轮 -> >_ -->
 <div class="sidebar">
-  <button class="sidebar-btn" data-modal="info" title="信息">
+  <button class="sidebar-btn" data-modal="info" title="信息 / Info">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <circle cx="12" cy="12" r="10"></circle>
       <line x1="12" y1="16" x2="12" y2="12"></line>
       <line x1="12" y1="8" x2="12.01" y2="8"></line>
     </svg>
   </button>
-  <button class="sidebar-btn" data-modal="settings" title="设置">
+  <button class="sidebar-btn" data-modal="lora" title="选择 Lora / Select Lora">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M6 4 L6 20 L19 20"></path>
+    </svg>
+  </button>
+  <button class="sidebar-btn" data-modal="settings" title="设置 / Settings">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <circle cx="12" cy="12" r="3"></circle>
       <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
     </svg>
   </button>
-  <button class="sidebar-btn" data-modal="terminal" title="终端">
+  <button class="sidebar-btn" data-modal="terminal" title="终端 / Terminal">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <polyline points="4 17 10 11 4 5"></polyline>
       <line x1="12" y1="19" x2="20" y2="19"></line>
@@ -285,75 +412,101 @@
   </button>
 </div>
 
-<!-- 主区域 -->
 <div class="main-area">
   <div class="panel">
-    <!-- 主题切换 -->
     <div class="theme-switcher">
-      <button data-theme-set="system" class="active">跟随系统</button>
-      <button data-theme-set="dark">深色</button>
-      <button data-theme-set="light">浅色</button>
+      <button data-theme-set="system" class="active">跟随系统 / Auto</button>
+      <button data-theme-set="dark">深色 / Dark</button>
+      <button data-theme-set="light">浅色 / Light</button>
     </div>
 
-    <label>服务地址</label>
+    <label>服务地址 / Server URL</label>
     <input id="server" value="http://127.0.0.1:1234">
 
-    <label>主提示词 <span class="badge">用户输入</span></label>
-    <textarea id="prompt" rows="4"></textarea>
+    <label>主提示词 / Positive Prompt <span class="badge">用户输入</span></label>
+    <textarea id="prompt" rows="3"></textarea>
 
-    <label>负面提示词 <span class="badge">用户输入</span></label>
+    <label>负面提示词 / Negative Prompt <span class="badge">用户输入</span></label>
     <textarea id="negative" rows="2"></textarea>
 
-    <!-- 附加默认提示词开关 + 预览 -->
     <div class="toggle-group">
-      <label><input type="checkbox" id="useExtraPositive" checked> 启用附加正面提示词</label>
-      <label><input type="checkbox" id="useExtraNegative" checked> 启用附加负面提示词</label>
+      <label><input type="checkbox" id="useExtraPositive" checked> 附加正面 / Extra Pos</label>
+      <label><input type="checkbox" id="useExtraNegative" checked> 附加负面 / Extra Neg</label>
     </div>
     <div class="hint" id="extraPreviewHint"></div>
 
-    <label>LoRA（文件名，相对 --lora-model-dir）</label>
-    <div class="row">
-      <input id="loraPath" placeholder="your_lora.safetensors">
-      <input id="loraWeight" type="number" step="0.05" value="0.8" style="flex:0 0 80px">
+    <label>已选 Lora / Selected Lora <span class="badge" id="loraCountBadge">0 个</span></label>
+    <div class="selected-loras-wrap">
+      <div class="selected-loras-header">
+        <span id="loraListHint">点击左侧 L 图标添加 / Click L icon to add</span>
+        <button class="clear-all" id="clearAllLoras" style="display:none">清空 / Clear</button>
+      </div>
+      <div class="selected-loras-list" id="selectedLorasList">
+        <div class="no-selected-hint">暂未选择 Lora / No Lora selected</div>
+      </div>
     </div>
-    <div class="hint">留空则不传 LoRA。每次请求都会固定带上这里的值。</div>
 
-    <div class="row">
+    <!-- 美化后的数字输入区：宽/高/步数/CFG -->
+    <div class="params-grid">
       <div>
-        <label>宽度</label>
-        <input id="width" type="number" value="512">
+        <label>宽度 / Width</label>
+        <div class="num-wrap">
+          <button class="num-btn dec" data-target="width" data-step="-64" aria-label="减少宽度">−</button>
+          <input id="width" type="number" value="512" min="64" max="2048" step="64">
+          <button class="num-btn inc" data-target="width" data-step="64" aria-label="增加宽度">+</button>
+        </div>
       </div>
       <div>
-        <label>高度</label>
-        <input id="height" type="number" value="512">
+        <label>高度 / Height</label>
+        <div class="num-wrap">
+          <button class="num-btn dec" data-target="height" data-step="-64" aria-label="减少高度">−</button>
+          <input id="height" type="number" value="512" min="64" max="2048" step="64">
+          <button class="num-btn inc" data-target="height" data-step="64" aria-label="增加高度">+</button>
+        </div>
       </div>
       <div>
-        <label>步数</label>
-        <input id="steps" type="number" value="12">
+        <label>步数 / Steps</label>
+        <div class="num-wrap">
+          <button class="num-btn dec" data-target="steps" data-step="-1" aria-label="减少步数">−</button>
+          <input id="steps" type="number" value="12" min="1" max="150" step="1">
+          <button class="num-btn inc" data-target="steps" data-step="1" aria-label="增加步数">+</button>
+        </div>
       </div>
       <div>
         <label>CFG</label>
-        <input id="cfg" type="number" step="0.5" value="2">
+        <div class="num-wrap">
+          <button class="num-btn dec" data-target="cfg" data-step="-0.5" aria-label="减少CFG">−</button>
+          <input id="cfg" type="number" step="0.5" value="2" min="1" max="30">
+          <button class="num-btn inc" data-target="cfg" data-step="0.5" aria-label="增加CFG">+</button>
+        </div>
       </div>
     </div>
 
-    <button id="go">生成</button>
+    <button id="go">生成 / Generate</button>
     <div id="status"></div>
   </div>
 
-  <div class="preview" id="preview">生成结果会显示在这里</div>
+  <div class="preview" id="preview">
+    <div class="download-btn" id="downloadBtn" title="下载图片 / Download">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+        <polyline points="7 10 12 15 17 10"></polyline>
+        <line x1="12" y1="15" x2="12" y2="3"></line>
+      </svg>
+    </div>
+    生成结果会显示在这里 / Result will appear here
+  </div>
 </div>
 
-<!-- 弹窗 -->
 <div class="modal-overlay" id="modalOverlay">
-  <div class="modal">
+  <div class="modal" id="modalBox">
     <div class="modal-title" id="modalTitle">
       <svg id="modalIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></svg>
       <span id="modalTitleText">提示</span>
     </div>
     <div class="modal-body" id="modalBody">该功能尚未完成。</div>
     <div class="modal-actions">
-      <button id="modalClose">确定</button>
+      <button id="modalClose">确定 / OK</button>
     </div>
   </div>
 </div>
@@ -363,6 +516,7 @@ const $ = id => document.getElementById(id);
 const statusEl = $("status");
 const previewEl = $("preview");
 const goBtn = $("go");
+const downloadBtn = $("downloadBtn");
 
 // ---------- 主题控制 ----------
 const THEME_KEY = "sd-ui-theme";
@@ -377,79 +531,350 @@ function applyTheme(mode) {
     htmlEl.setAttribute("data-theme", mode);
     localStorage.setItem(THEME_KEY, mode);
   }
-  themeButtons.forEach(btn => {
-    btn.classList.toggle("active", btn.dataset.themeSet === mode);
-  });
+  themeButtons.forEach(btn => btn.classList.toggle("active", btn.dataset.themeSet === mode));
 }
-
 const savedTheme = localStorage.getItem(THEME_KEY);
-if (savedTheme) {
-  applyTheme(savedTheme);
-} else {
-  applyTheme("system");
-}
+applyTheme(savedTheme || "system");
+themeButtons.forEach(btn => btn.addEventListener("click", () => applyTheme(btn.dataset.themeSet)));
 
-themeButtons.forEach(btn => {
-  btn.addEventListener("click", () => {
-    applyTheme(btn.dataset.themeSet);
+// ---------- 数字步进器逻辑 ----------
+document.querySelectorAll('.num-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const targetId = btn.dataset.target;
+    const step = parseFloat(btn.dataset.step);
+    const input = $(targetId);
+    let val = parseFloat(input.value) || 0;
+    val += step;
+    // 精度处理（避免 CFG 出现 2.4999999）
+    val = Math.round(val * 1000) / 1000;
+    // 应用 min/max
+    const min = parseFloat(input.min);
+    const max = parseFloat(input.max);
+    if (!isNaN(min) && val < min) val = min;
+    if (!isNaN(max) && val > max) val = max;
+    // 宽度高度保持64的倍数
+    if (targetId === 'width' || targetId === 'height') {
+      val = Math.round(val / 64) * 64;
+    }
+    input.value = val;
+    // 触发 change 事件方便将来扩展
+    input.dispatchEvent(new Event('change', { bubbles: true }));
   });
 });
 
-// ---------- 侧栏弹窗 ----------
+// ---------- 已选 Lora 状态 ----------
+let selectedLoras = [];
+
+function saveLoras() {
+  try { localStorage.setItem("sd-selected-loras", JSON.stringify(selectedLoras)); } catch(_) {}
+}
+function loadLorasState() {
+  try {
+    const raw = localStorage.getItem("sd-selected-loras");
+    if (raw) {
+      const arr = JSON.parse(raw);
+      if (Array.isArray(arr)) selectedLoras = arr.filter(x => x && typeof x.path === 'string');
+    }
+  } catch(_) { selectedLoras = []; }
+}
+loadLorasState();
+
+function loraCount() {
+  return selectedLoras.filter(l => l.enabled).length;
+}
+
+function normalizeLoraPath(path) {
+  if (!path) return "";
+  let norm = String(path).trim().replace(/\\/g, "/");
+  norm = norm.replace(/^\.\//, "");
+  norm = norm.replace(/\/+/g, "/");
+  norm = norm.replace(/\/$/, "");
+  if (!/\.[a-z0-9]{2,5}$/i.test(norm)) norm += ".safetensors";
+  return norm;
+}
+
+function addLora(path) {
+  if (!path) return;
+  const norm = normalizeLoraPath(path);
+  if (!norm) return;
+  if (selectedLoras.some(l => l.path.toLowerCase() === norm.toLowerCase())) {
+    setStatus(`已在列表中 / Already in list：${norm}`);
+    return;
+  }
+  selectedLoras.push({ path: norm, weight: 0.8, enabled: true });
+  saveLoras();
+  renderSelectedLoras();
+  setStatus(`已添加 / Added：${norm}`);
+}
+
+function removeLora(idx) {
+  if (idx < 0 || idx >= selectedLoras.length) return;
+  const removed = selectedLoras.splice(idx, 1)[0];
+  saveLoras();
+  renderSelectedLoras();
+  setStatus(`已移除 / Removed：${removed.path}`);
+}
+
+function toggleLora(idx) {
+  if (idx < 0 || idx >= selectedLoras.length) return;
+  selectedLoras[idx].enabled = !selectedLoras[idx].enabled;
+  saveLoras();
+  renderSelectedLoras();
+}
+
+function setLoraWeight(idx, val) {
+  if (idx < 0 || idx >= selectedLoras.length) return;
+  const v = parseFloat(val);
+  selectedLoras[idx].weight = isNaN(v) ? 1.0 : v;
+  saveLoras();
+}
+
+function clearAllLoras() {
+  if (selectedLoras.length === 0) return;
+  selectedLoras = [];
+  saveLoras();
+  renderSelectedLoras();
+  setStatus("已清空 Lora 列表 / Lora list cleared");
+}
+
+function renderSelectedLoras() {
+  const list = $("selectedLorasList");
+  const badge = $("loraCountBadge");
+  const hint = $("loraListHint");
+  const clearBtn = $("clearAllLoras");
+
+  const enabledCount = loraCount();
+  badge.textContent = `${enabledCount} / ${selectedLoras.length} 启用`;
+  clearBtn.style.display = selectedLoras.length ? "inline" : "none";
+
+  if (selectedLoras.length === 0) {
+    list.innerHTML = '<div class="no-selected-hint">暂未选择 Lora / No Lora selected</div>';
+    hint.textContent = "点击左侧 L 图标添加 / Click L icon to add";
+    return;
+  }
+  hint.textContent = "启用 / 禁用 / 删除";
+
+  list.innerHTML = "";
+  selectedLoras.forEach((lora, idx) => {
+    const row = document.createElement("div");
+    row.className = "selected-lora" + (lora.enabled ? "" : " disabled");
+
+    const toggleBtn = document.createElement("button");
+    toggleBtn.className = "sl-toggle" + (lora.enabled ? " enabled" : "");
+    toggleBtn.title = lora.enabled ? "点击禁用 / Disable" : "点击启用 / Enable";
+    toggleBtn.addEventListener("click", () => toggleLora(idx));
+    row.appendChild(toggleBtn);
+
+    const pathEl = document.createElement("span");
+    pathEl.className = "sl-path";
+    pathEl.textContent = lora.path;
+    pathEl.title = lora.path;
+    row.appendChild(pathEl);
+
+    const weightInput = document.createElement("input");
+    weightInput.type = "number";
+    weightInput.step = "0.05";
+    weightInput.className = "sl-weight";
+    weightInput.value = lora.weight;
+    weightInput.title = "权重 / Weight multiplier";
+    weightInput.addEventListener("change", (e) => setLoraWeight(idx, e.target.value));
+    row.appendChild(weightInput);
+
+    const delBtn = document.createElement("button");
+    delBtn.className = "sl-btn danger";
+    delBtn.title = "从列表删除 / Remove";
+    delBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="3 6 5 6 21 6"></polyline>
+      <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+      <path d="M10 11v6"></path><path d="M14 11v6"></path>
+      <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
+    </svg>`;
+    delBtn.addEventListener("click", () => removeLora(idx));
+    row.appendChild(delBtn);
+
+    list.appendChild(row);
+  });
+}
+
+$("clearAllLoras").addEventListener("click", clearAllLoras);
+renderSelectedLoras();
+
+// ---------- 通用弹窗（含双语 + AI 说明） ----------
 const modalOverlay = $("modalOverlay");
 const modalTitleText = $("modalTitleText");
 const modalBody = $("modalBody");
 const modalIcon = $("modalIcon");
 const modalClose = $("modalClose");
+const modalBox = $("modalBox");
 
 const modalConfigs = {
   info: {
-    title: "信息",
-    body: "信息功能尚未完成，敬请期待。",
+    title: "信息 / Information",
+    body: `这是一个简易的 Stable Diffusion 生图前端。<br>
+           <span class="en">A simple Stable Diffusion web UI front-end.</span>
+           <div class="ai-note">
+              页面由AI生成 / This page was generated by AI./(｡•́︿•̀｡)
+           </div>`,
     icon: '<circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line>'
   },
   settings: {
-    title: "设置",
-    body: "设置功能尚未完成，敬请期待。",
+    title: "设置 / Settings",
+    body: `设置功能尚未完成，敬请期待。<br>
+           <span class="en">Settings feature is not yet complete. Stay tuned.</span>
+           <div class="ai-note">
+              页面由AI生成 / This page was generated by AI./(｡•́︿•̀｡)
+           </div>`,
     icon: '<circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>'
   },
   terminal: {
-    title: "终端",
-    body: "终端功能尚未完成，敬请期待。",
+    title: "终端 / Terminal",
+    body: `终端功能尚未完成，敬请期待。<br>
+           <span class="en">Terminal feature is not yet complete. Stay tuned.</span>
+           <div class="ai-note">
+              页面由AI生成 / This page was generated by AI./(｡•́︿•̀｡)
+           </div>`,
     icon: '<polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line>'
   }
 };
 
-function openModal(type) {
+function openGenericModal(type) {
   const cfg = modalConfigs[type];
   if (!cfg) return;
+  modalBox.classList.remove("wide-modal");
   modalTitleText.textContent = cfg.title;
-  modalBody.textContent = cfg.body;
+  modalBody.innerHTML = cfg.body;   // 使用 innerHTML 以支持双语 + AI 说明
+  modalBody.style.display = "";
   modalIcon.innerHTML = cfg.icon;
+  const oldLora = modalBody.querySelector(".lora-list-wrapper");
+  if (oldLora) oldLora.remove();
   modalOverlay.classList.add("show");
 }
-
 function closeModal() {
   modalOverlay.classList.remove("show");
+  modalBox.classList.remove("wide-modal");
 }
 
 document.querySelectorAll(".sidebar-btn").forEach(btn => {
   btn.addEventListener("click", () => {
-    openModal(btn.dataset.modal);
+    const type = btn.dataset.modal;
+    if (type === "lora") openLoraModal();
+    else openGenericModal(type);
   });
 });
-
 modalClose.addEventListener("click", closeModal);
-modalOverlay.addEventListener("click", (e) => {
-  if (e.target === modalOverlay) closeModal();
-});
+modalOverlay.addEventListener("click", (e) => { if (e.target === modalOverlay) closeModal(); });
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape" && modalOverlay.classList.contains("show")) closeModal();
 });
 
-// ---------- 附加默认提示词 ----------
+// ---------- Lora 扫描选择器 ----------
+async function openLoraModal() {
+  modalBox.classList.add("wide-modal");
+  modalTitleText.textContent = "选择 Lora（点击加入列表）/ Select Lora (click to add)";
+  modalIcon.innerHTML = '<path d="M6 4 L6 20 L19 20"></path>';
+  modalBody.textContent = "";
+  modalBody.style.display = "block";
+
+  const wrapper = document.createElement("div");
+  wrapper.className = "lora-list-wrapper";
+
+  const refreshRow = document.createElement("div");
+  refreshRow.className = "lora-refresh";
+  const refreshBtn = document.createElement("button");
+  refreshBtn.textContent = "刷新列表 / Refresh";
+  refreshRow.appendChild(refreshBtn);
+  wrapper.appendChild(refreshRow);
+
+  const countEl = document.createElement("div");
+  countEl.className = "lora-count";
+  countEl.textContent = "正在加载… / Loading…";
+  wrapper.appendChild(countEl);
+
+  const listEl = document.createElement("div");
+  listEl.className = "lora-list";
+  wrapper.appendChild(listEl);
+
+  modalBody.appendChild(wrapper);
+  modalOverlay.classList.add("show");
+
+  async function loadLoras() {
+    listEl.innerHTML = '<div class="lora-loading">⏳ 正在扫描 Lora 目录… / Scanning Lora directory…</div>';
+    countEl.textContent = "正在加载… / Loading…";
+    const server = $("server").value.trim().replace(/\/+$/, "");
+    if (!server) {
+      listEl.innerHTML = '<div class="lora-empty">请先填写服务地址 / Please enter server URL</div>';
+      countEl.textContent = "";
+      return;
+    }
+    try {
+      const resp = await fetch(`${server}/sdapi/v1/loras`);
+      if (!resp.ok) {
+        const text = await resp.text();
+        throw new Error(`HTTP ${resp.status}: ${text.slice(0, 200)}`);
+      }
+      const data = await resp.json();
+
+      let loras = [];
+      if (Array.isArray(data)) {
+        loras = data;
+      } else if (data && Array.isArray(data.value)) {
+        loras = data.value;
+      } else if (data && Array.isArray(data.loras)) {
+        loras = data.loras;
+      } else if (data && typeof data === 'object') {
+        loras = Object.keys(data).map(k => ({ name: k, ...(data[k] || {}) }));
+      }
+
+      console.log("[loras] raw API data:", data);
+
+      const normalized = loras.map(item => {
+        if (typeof item === 'string') return normalizeLoraPath(item);
+        const p = item.path || item.display_path || item.name || item.filename;
+        return normalizeLoraPath(p);
+      }).filter(Boolean);
+
+      listEl.innerHTML = "";
+      if (normalized.length === 0) {
+        listEl.innerHTML = '<div class="lora-empty">📂 没有找到 Lora 文件 / No Lora files found</div>';
+        countEl.textContent = "共 0 个 / Total 0";
+        return;
+      }
+      countEl.textContent = `共 ${normalized.length} 个 Lora · 点击加入列表 / Total ${normalized.length} Lora · Click to add`;
+
+      normalized.forEach(path => {
+        const div = document.createElement("div");
+        div.className = "lora-item";
+        div.title = path;
+        div.innerHTML = `
+          <span class="lora-icon">
+            <svg viewBox="0 0 24 24"><path d="M6 4 L6 20 L19 20"></path></svg>
+          </span>
+          <span class="lora-name">${escapeHtml(path)}</span>
+        `;
+        div.addEventListener("click", () => {
+          addLora(path);
+          div.style.borderColor = "var(--accent)";
+          setTimeout(() => { div.style.borderColor = ""; }, 300);
+        });
+        listEl.appendChild(div);
+      });
+    } catch (err) {
+      listEl.innerHTML = `<div class="lora-empty">❌ 加载失败 / Load failed：${escapeHtml(err.message)}</div>`;
+      countEl.textContent = "加载失败 / Load failed";
+    }
+  }
+
+  refreshBtn.addEventListener("click", loadLoras);
+  await loadLoras();
+}
+
+function escapeHtml(str) {
+  return String(str).replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+}
+
+// ---------- 提示词 ----------
 const EXTRA_POSITIVE = "masterpiece, best quality, score_9, score_8, highres, absurdres, newest, year 2026, safe, extremely detailed, highly detailed";
-const EXTRA_NEGATIVE = "worst quality, low quality, blurry, jpeg artifacts, signature, watermark, username, text, extra digits, artistic error, bad anatomy, bad hands, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, text, error, blurry, ugly, disfigured, out of frame, extra limbs, malformed limbs, mutated hands, poorly drawn hands, mutated hands, poorly drawn face, mutation, deformed, blurry, bad anatomy, bad proportions, extra limbs, cloned face, disfigured, gross proportions, missing arms, missing legs, extra arms, extra legs, fused fingers, too many fingers, long neck";
+const EXTRA_NEGATIVE = "worst quality, low quality, lowres, blurry, jpeg artifacts, watermark, signature, text, bad anatomy, bad hands, extra digits, missing fingers, malformed limbs";
 
 function setStatus(msg, isError = false) {
   statusEl.textContent = msg;
@@ -461,30 +886,29 @@ function buildPrompt() {
   const baseNegative = $("negative").value.trim();
   const useExtraPos = $("useExtraPositive").checked;
   const useExtraNeg = $("useExtraNegative").checked;
-
   let finalPositive = basePrompt;
   let finalNegative = baseNegative;
-
-  if (useExtraPos && EXTRA_POSITIVE.length) {
+  if (useExtraPos && EXTRA_POSITIVE.length)
     finalPositive = finalPositive ? `${finalPositive}, ${EXTRA_POSITIVE}` : EXTRA_POSITIVE;
-  }
-  if (useExtraNeg && EXTRA_NEGATIVE.length) {
+  if (useExtraNeg && EXTRA_NEGATIVE.length)
     finalNegative = finalNegative ? `${finalNegative}, ${EXTRA_NEGATIVE}` : EXTRA_NEGATIVE;
-  }
-
   return { finalPositive, finalNegative };
 }
+
+let currentImageB64 = null;
 
 async function generate() {
   const server = $("server").value.trim().replace(/\/+$/, "");
   const { finalPositive, finalNegative } = buildPrompt();
-
   if (!finalPositive) {
-    setStatus("提示词不能为空（主提示词或附加提示词至少一个）", true);
+    setStatus("提示词不能为空 / Prompt cannot be empty", true);
     return;
   }
 
-  const loraPath = $("loraPath").value.trim();
+  const activeLoras = selectedLoras
+    .filter(l => l.enabled)
+    .map(l => ({ path: l.path, multiplier: l.weight }));
+
   const payload = {
     prompt: finalPositive,
     negative_prompt: finalNegative,
@@ -493,53 +917,71 @@ async function generate() {
     steps: parseInt($("steps").value) || 12,
     cfg_scale: parseFloat($("cfg").value) || 2
   };
-  if (loraPath) {
-    payload.lora = [{ path: loraPath, multiplier: parseFloat($("loraWeight").value) || 1.0 }];
-  }
+  if (activeLoras.length > 0) payload.lora = activeLoras;
 
   goBtn.disabled = true;
-  setStatus("正在请求…");
+  setStatus(`正在请求… / Requesting…（${activeLoras.length} 个 Lora 启用）`);
 
   try {
-    if (loraPath) {
-      try { await fetch(`${server}/sdapi/v1/loras`); } catch (_) {}
-    }
-
     const resp = await fetch(`${server}/sdapi/v1/txt2img`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
     });
-
     if (!resp.ok) {
       const text = await resp.text();
       throw new Error(`HTTP ${resp.status}: ${text.slice(0, 300)}`);
     }
-
     const data = await resp.json();
     const b64 = data.images && data.images[0];
-    if (!b64) throw new Error("响应里没有 images 字段");
+    if (!b64) throw new Error("响应里没有 images 字段 / Response has no images field");
 
+    currentImageB64 = b64;
     previewEl.innerHTML = "";
+
+    const dlBtn = document.createElement("div");
+    dlBtn.className = "download-btn";
+    dlBtn.id = "downloadBtn";
+    dlBtn.title = "下载图片 / Download";
+    dlBtn.innerHTML = `
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+        <polyline points="7 10 12 15 17 10"></polyline>
+        <line x1="12" y1="15" x2="12" y2="3"></line>
+      </svg>`;
+    dlBtn.addEventListener("click", downloadImage);
+    previewEl.appendChild(dlBtn);
+
     const img = document.createElement("img");
     img.src = "data:image/png;base64," + b64;
+    img.alt = "生成结果 / Result";
     previewEl.appendChild(img);
-    setStatus("完成");
+    previewEl.classList.add("has-image");
+    setStatus("完成 / Done");
   } catch (err) {
-    setStatus("失败：" + err.message, true);
+    setStatus("失败 / Failed：" + err.message, true);
   } finally {
     goBtn.disabled = false;
   }
 }
 
+function downloadImage() {
+  if (!currentImageB64) { setStatus("没有可下载的图片 / No image to download", true); return; }
+  const link = document.createElement("a");
+  link.href = "data:image/png;base64," + currentImageB64;
+  link.download = `sd-output-${Date.now()}.png`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
 function updateExtraHint() {
   const usePos = $("useExtraPositive").checked;
   const useNeg = $("useExtraNegative").checked;
-  const posPreview = usePos ? "附加正面已启用" : "附加正面已关闭";
-  const negPreview = useNeg ? "附加负面已启用" : "附加负面已关闭";
-  $("extraPreviewHint").textContent = posPreview + " · " + negPreview;
+  $("extraPreviewHint").textContent =
+    (usePos ? "附加正面已启用 / Extra Pos ON" : "附加正面已关闭 / Extra Pos OFF") + " · " +
+    (useNeg ? "附加负面已启用 / Extra Neg ON" : "附加负面已关闭 / Extra Neg OFF");
 }
-
 $("useExtraPositive").addEventListener("change", updateExtraHint);
 $("useExtraNegative").addEventListener("change", updateExtraHint);
 updateExtraHint();
@@ -548,10 +990,10 @@ $("width").value = 512;
 $("height").value = 512;
 $("steps").value = 12;
 $("cfg").value = 2;
-$("prompt").value = "";
-$("negative").value = "";
 
 goBtn.addEventListener("click", generate);
+$("downloadBtn").addEventListener("click", downloadImage);
+previewEl.classList.remove("has-image");
 </script>
 </body>
 </html>
