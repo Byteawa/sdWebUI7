@@ -189,7 +189,6 @@
   }
   .params-grid label { margin-bottom: 0; }
 
-  /* 自定义数字步进器 — 更顺眼 */
   .num-wrap {
     display: flex;
     align-items: stretch;
@@ -347,12 +346,73 @@
   .selected-lora .sl-path {
     flex: 1; font-family: "SF Mono", "Consolas", monospace;
     font-size: 12px; word-break: break-all; line-height: 1.35;
+    min-width: 0;
   }
-  .selected-lora .sl-weight {
-    flex: 0 0 62px; width: 62px; padding: 4px 6px; font-size: 12px;
-    text-align: center; background: var(--input-bg);
-    border: 1px solid var(--border); border-radius: 5px;
+
+  /* 权重调整组：− 数值 + 垃圾桶（水平排列） */
+  .sl-weight-group {
+    display: flex;
+    align-items: stretch;
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    height: 34px;
+    flex: 0 0 auto;
+    transition: border-color 0.2s, background 0.2s;
   }
+  .sl-weight-group:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(74, 125, 255, 0.15);
+  }
+  .sl-weight-btn {
+    flex: 0 0 28px;
+    width: 28px;
+    min-width: 28px;
+    border: none;
+    background: var(--num-btn-bg);
+    color: var(--text);
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, color 0.15s;
+    padding: 0;
+    border-radius: 0;
+    user-select: none;
+    opacity: 0.85;
+  }
+  .sl-weight-btn:hover {
+    background: var(--num-btn-hover);
+    color: #fff;
+    opacity: 1;
+  }
+  .sl-weight-btn:active { opacity: 0.7; }
+  .sl-weight-btn.minus { border-right: 1px solid var(--border); }
+  .sl-weight-btn.plus { border-left: 1px solid var(--border); }
+  .sl-weight-input {
+    width: 46px;
+    flex: 0 0 46px;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    text-align: center;
+    font-weight: 500;
+    font-size: 12.5px;
+    padding: 0 2px;
+    min-width: 0;
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+  .sl-weight-input::-webkit-outer-spin-button,
+  .sl-weight-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
   .selected-lora .sl-btn {
     flex: 0 0 28px; width: 28px; height: 28px;
     display: flex; align-items: center; justify-content: center;
@@ -545,19 +605,15 @@ document.querySelectorAll('.num-btn').forEach(btn => {
     const input = $(targetId);
     let val = parseFloat(input.value) || 0;
     val += step;
-    // 精度处理（避免 CFG 出现 2.4999999）
     val = Math.round(val * 1000) / 1000;
-    // 应用 min/max
     const min = parseFloat(input.min);
     const max = parseFloat(input.max);
     if (!isNaN(min) && val < min) val = min;
     if (!isNaN(max) && val > max) val = max;
-    // 宽度高度保持64的倍数
     if (targetId === 'width' || targetId === 'height') {
       val = Math.round(val / 64) * 64;
     }
     input.value = val;
-    // 触发 change 事件方便将来扩展
     input.dispatchEvent(new Event('change', { bubbles: true }));
   });
 });
@@ -583,13 +639,13 @@ function loraCount() {
   return selectedLoras.filter(l => l.enabled).length;
 }
 
+// 只做路径规范化：统一斜杠、去空格、去掉开头的 ./，不添加任何后缀
 function normalizeLoraPath(path) {
   if (!path) return "";
   let norm = String(path).trim().replace(/\\/g, "/");
   norm = norm.replace(/^\.\//, "");
   norm = norm.replace(/\/+/g, "/");
   norm = norm.replace(/\/$/, "");
-  if (!/\.[a-z0-9]{2,5}$/i.test(norm)) norm += ".safetensors";
   return norm;
 }
 
@@ -629,6 +685,18 @@ function setLoraWeight(idx, val) {
   saveLoras();
 }
 
+function adjustLoraWeight(idx, delta) {
+  if (idx < 0 || idx >= selectedLoras.length) return;
+  let v = selectedLoras[idx].weight + delta;
+  v = Math.round(v * 1000) / 1000;
+  if (v < 0) v = 0;
+  if (v > 5) v = 5;
+  selectedLoras[idx].weight = v;
+  saveLoras();
+  const weightInput = document.querySelector(`.selected-lora[data-idx="${idx}"] .sl-weight-input`);
+  if (weightInput) weightInput.value = v;
+}
+
 function clearAllLoras() {
   if (selectedLoras.length === 0) return;
   selectedLoras = [];
@@ -658,6 +726,7 @@ function renderSelectedLoras() {
   selectedLoras.forEach((lora, idx) => {
     const row = document.createElement("div");
     row.className = "selected-lora" + (lora.enabled ? "" : " disabled");
+    row.dataset.idx = idx;
 
     const toggleBtn = document.createElement("button");
     toggleBtn.className = "sl-toggle" + (lora.enabled ? " enabled" : "");
@@ -671,14 +740,57 @@ function renderSelectedLoras() {
     pathEl.title = lora.path;
     row.appendChild(pathEl);
 
+    // 权重调整组：− 数值 + （水平排列）
+    const weightGroup = document.createElement("div");
+    weightGroup.className = "sl-weight-group";
+
+    const minusBtn = document.createElement("button");
+    minusBtn.className = "sl-weight-btn minus";
+    minusBtn.textContent = "−";
+    minusBtn.title = "减少权重 / Decrease weight";
+    minusBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      adjustLoraWeight(idx, -0.05);
+    });
+    weightGroup.appendChild(minusBtn);
+
     const weightInput = document.createElement("input");
     weightInput.type = "number";
     weightInput.step = "0.05";
-    weightInput.className = "sl-weight";
+    weightInput.className = "sl-weight-input";
     weightInput.value = lora.weight;
     weightInput.title = "权重 / Weight multiplier";
-    weightInput.addEventListener("change", (e) => setLoraWeight(idx, e.target.value));
-    row.appendChild(weightInput);
+    weightInput.min = 0;
+    weightInput.max = 5;
+    weightInput.addEventListener("change", (e) => {
+      let v = parseFloat(e.target.value);
+      if (isNaN(v)) v = 1.0;
+      if (v < 0) v = 0;
+      if (v > 5) v = 5;
+      e.target.value = v;
+      setLoraWeight(idx, v);
+    });
+    weightInput.addEventListener("blur", (e) => {
+      let v = parseFloat(e.target.value);
+      if (isNaN(v)) v = 1.0;
+      if (v < 0) v = 0;
+      if (v > 5) v = 5;
+      e.target.value = v;
+      setLoraWeight(idx, v);
+    });
+    weightGroup.appendChild(weightInput);
+
+    const plusBtn = document.createElement("button");
+    plusBtn.className = "sl-weight-btn plus";
+    plusBtn.textContent = "+";
+    plusBtn.title = "增加权重 / Increase weight";
+    plusBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      adjustLoraWeight(idx, 0.05);
+    });
+    weightGroup.appendChild(plusBtn);
+
+    row.appendChild(weightGroup);
 
     const delBtn = document.createElement("button");
     delBtn.className = "sl-btn danger";
@@ -742,7 +854,7 @@ function openGenericModal(type) {
   if (!cfg) return;
   modalBox.classList.remove("wide-modal");
   modalTitleText.textContent = cfg.title;
-  modalBody.innerHTML = cfg.body;   // 使用 innerHTML 以支持双语 + AI 说明
+  modalBody.innerHTML = cfg.body;
   modalBody.style.display = "";
   modalIcon.innerHTML = cfg.icon;
   const oldLora = modalBody.querySelector(".lora-list-wrapper");
