@@ -9,3 +9,11 @@ axum = {version="0.8.9",features=["macros"]}
 serde = { version = "1", features = ["derive"] }
 serde_json = "1.0.154"
 webbrowser = "1.2.7"
+
+
+[profile.release]
+opt-level = 3        # 最高级别的优化
+lto = "fat"          # 开启跨 crate 的完全链接时优化 (LTO)
+codegen-units = 1    # 减少代码生成单元，让 LLVM 进行更彻底的优化
+panic = "abort"      # panic 时直接终止进程，省去栈展开代码，减小体积
+strip = true         # 发布时移除符号信息，减小二进制文件

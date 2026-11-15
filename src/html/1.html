@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>sd-server 简易生图 · Lora 列表</title>
+<title>sd-server 简易生图</title>
 <style>
   :root {
     --bg: #16181d;
@@ -252,17 +252,6 @@
   }
   .sl-toggle:not(.enabled):hover { border-color: var(--accent); }
 
-  .selected-lora .sl-btn {
-    flex: 0 0 28px; width: 28px; height: 28px;
-    display: flex; align-items: center; justify-content: center;
-    border: 1px solid var(--border); background: transparent;
-    border-radius: 6px; cursor: pointer; padding: 0;
-    color: var(--hint); transition: all 0.15s;
-  }
-  .selected-lora .sl-btn:hover { border-color: var(--accent); color: var(--accent); }
-  .selected-lora .sl-btn.danger:hover { border-color: var(--danger); color: var(--danger); }
-  .selected-lora .sl-btn svg { width: 15px; height: 15px; }
-
   .extra-item .sl-btn {
     flex: 0 0 26px; width: 26px; height: 26px;
     display: flex; align-items: center; justify-content: center;
@@ -353,6 +342,151 @@
     transition: background 0.2s, border-color 0.2s, color 0.2s;
   }
   .theme-switcher button.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  /* ---------- 已选 Lora 列表 ---------- */
+  .selected-loras-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .selected-loras-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    font-size: 12.5px;
+    color: var(--hint);
+  }
+  .selected-loras-header .clear-all {
+    flex: 0 0 auto;
+    font-size: 12px;
+    padding: 5px 12px;
+    font-weight: 500;
+    background: var(--panel-bg);
+    border: 1px solid var(--border);
+    color: var(--danger);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+  .selected-loras-header .clear-all:hover { border-color: var(--danger); }
+
+  .selected-loras-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 200px;
+    overflow-y: auto;
+    padding-right: 2px;
+  }
+  .selected-loras-list::-webkit-scrollbar { width: 5px; }
+  .selected-loras-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  .no-selected-hint {
+    font-size: 12.5px;
+    color: var(--hint);
+    text-align: center;
+    padding: 10px 0;
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+  }
+
+  .selected-lora {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--lora-item-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 7px 10px;
+    transition: border-color 0.15s, opacity 0.15s;
+  }
+  .selected-lora.disabled { opacity: 0.45; }
+
+  .selected-lora .sl-path {
+    flex: 1;
+    min-width: 0;
+    font-family: "SF Mono", "Consolas", monospace;
+    font-size: 12px;
+    line-height: 1.4;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .selected-lora .sl-weight-group {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: stretch;
+    height: 28px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    background: var(--input-bg);
+  }
+  .selected-lora .sl-weight-btn {
+    flex: 0 0 22px;
+    width: 22px;
+    border: none;
+    background: var(--num-btn-bg);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+    border-radius: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, color 0.15s;
+    opacity: 0.85;
+  }
+  .selected-lora .sl-weight-btn:hover {
+    background: var(--num-btn-hover);
+    color: #fff;
+    opacity: 1;
+  }
+  .selected-lora .sl-weight-btn.minus { border-right: 1px solid var(--border); }
+  .selected-lora .sl-weight-btn.plus  { border-left: 1px solid var(--border); }
+
+  .selected-lora .sl-weight-input {
+    flex: 0 0 46px;
+    width: 46px;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    text-align: center;
+    font-size: 12px;
+    padding: 0 2px;
+    min-width: 0;
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+  .selected-lora .sl-weight-input::-webkit-outer-spin-button,
+  .selected-lora .sl-weight-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  .selected-lora .sl-weight-input:focus { outline: none; }
+
+  .selected-lora .sl-btn {
+    flex: 0 0 28px;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border);
+    background: transparent;
+    border-radius: 6px;
+    cursor: pointer;
+    padding: 0;
+    color: var(--hint);
+    transition: all 0.15s;
+  }
+  .selected-lora .sl-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .selected-lora .sl-btn.danger:hover { border-color: var(--danger); color: var(--danger); }
+  .selected-lora .sl-btn svg { width: 15px; height: 15px; }
 
   /* ---------- 弹窗 ---------- */
   .modal-overlay {
