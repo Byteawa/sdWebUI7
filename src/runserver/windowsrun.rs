@@ -17,6 +17,6 @@ pub fn run(dit:&str,clip:&str,vae:&str,lorapath:&str,post:&str){
             &lorapath,
         ])
         .status()
-        .expect("启动 sd-server 失败");
+        .expect("what");
 
 }
