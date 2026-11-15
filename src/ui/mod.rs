@@ -1,2 +1,2 @@
-mod mainui;
+pub mod mainui;
 pub use mainui::mainui;

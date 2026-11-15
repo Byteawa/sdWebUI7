@@ -29,6 +29,8 @@
     --enabled: #4a7dff;
     --num-btn-bg: #2f3540;
     --num-btn-hover: #4a7dff;
+    --pos: #4a7dff;
+    --neg: #ff9f43;
   }
 
   @media (prefers-color-scheme: light) {
@@ -57,6 +59,8 @@
       --enabled: #3b6fe0;
       --num-btn-bg: #e8ecf2;
       --num-btn-hover: #3b6fe0;
+      --pos: #3b6fe0;
+      --neg: #e8890c;
     }
   }
 
@@ -68,7 +72,7 @@
     --toggle-label: #3a3f48; --sidebar-bg: #eceef2; --sidebar-icon: #6b7280;
     --sidebar-icon-hover: #1a1d23; --sidebar-icon-bg-hover: #dfe2e8;
     --lora-item-bg: #f0f2f5; --danger: #e53935; --enabled: #3b6fe0;
-    --num-btn-bg: #e8ecf2; --num-btn-hover: #3b6fe0;
+    --num-btn-bg: #e8ecf2; --num-btn-hover: #3b6fe0; --pos: #3b6fe0; --neg: #e8890c;
   }
 
   html[data-theme="dark"] {
@@ -79,7 +83,7 @@
     --toggle-label: #c8ccd4; --sidebar-bg: #1a1c22; --sidebar-icon: #9aa0a6;
     --sidebar-icon-hover: #e6e6e6; --sidebar-icon-bg-hover: #2a2e38;
     --lora-item-bg: #262a32; --danger: #ff5c5c; --enabled: #4a7dff;
-    --num-btn-bg: #2f3540; --num-btn-hover: #4a7dff;
+    --num-btn-bg: #2f3540; --num-btn-hover: #4a7dff; --pos: #4a7dff; --neg: #ff9f43;
   }
 
   * { box-sizing: border-box; }
@@ -108,6 +112,14 @@
   }
   .sidebar-btn:hover { background: var(--sidebar-icon-bg-hover); color: var(--sidebar-icon-hover); }
   .sidebar-btn svg { width: 22px; height: 22px; display: block; }
+
+  /* P 按钮加大 */
+  .sidebar-btn.letter-btn {
+    width: 52px; height: 52px; border-radius: 12px;
+    font-size: 28px; font-weight: 800;
+    font-family: "SF Mono", "Consolas", monospace;
+    letter-spacing: -0.5px;
+  }
 
   /* ---------- 主区域 ---------- */
   .main-area {
@@ -165,6 +177,7 @@
     display: flex; gap: 16px; align-items: center;
     background: var(--toggle-bg); border-radius: 10px; padding: 9px 14px;
     border: 1px solid var(--toggle-border); transition: background 0.2s, border-color 0.2s;
+    flex-wrap: wrap;
   }
   .toggle-group label {
     display: flex; align-items: center; gap: 6px;
@@ -178,7 +191,89 @@
     padding: 2px 7px; color: var(--badge-text); margin-left: 6px;
   }
 
-  /* ---------- 数字输入美化（步数/CFG/宽高） ---------- */
+  /* ---------- 附加列表区块 ---------- */
+  .extra-section {
+    display: flex; flex-direction: column; gap: 8px;
+    background: var(--input-bg); border: 1px solid var(--border);
+    border-radius: 10px; padding: 10px 12px;
+  }
+  .extra-section-header {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  }
+  .extra-section-title {
+    display: flex; align-items: center; gap: 8px; font-size: 13.5px; font-weight: 600;
+  }
+  .extra-section-title .dot {
+    width: 8px; height: 8px; border-radius: 50%; display: inline-block;
+  }
+  .extra-section-title .dot.pos { background: var(--pos); }
+  .extra-section-title .dot.neg { background: var(--neg); }
+  .extra-manage-btn {
+    font-size: 12px; padding: 5px 12px; font-weight: 500; flex: 0 0 auto;
+    background: var(--panel-bg); border: 1px solid var(--border); color: var(--text);
+    border-radius: 6px; cursor: pointer;
+  }
+  .extra-manage-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .extra-list {
+    display: flex; flex-direction: column; gap: 6px;
+    max-height: 160px; overflow-y: auto; padding-right: 2px;
+  }
+  .extra-list::-webkit-scrollbar { width: 5px; }
+  .extra-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  .extra-empty {
+    font-size: 12.5px; color: var(--hint); text-align: center;
+    padding: 8px 0; border: 1px dashed var(--border); border-radius: 8px;
+  }
+  .extra-item {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--lora-item-bg); border: 1px solid var(--border);
+    border-radius: 8px; padding: 7px 10px; font-size: 12.5px;
+    transition: border-color 0.15s, opacity 0.15s;
+  }
+  .extra-item.disabled { opacity: 0.45; }
+  .extra-item .ei-text {
+    flex: 1; min-width: 0; line-height: 1.4;
+    font-family: "SF Mono", "Consolas", monospace; font-size: 12px;
+    word-break: break-all;
+  }
+  .extra-item .ei-content { color: var(--hint); font-size: 11.5px; }
+
+  .sl-toggle {
+    flex: 0 0 22px; width: 22px; height: 22px;
+    border-radius: 5px; border: 2px solid var(--enabled);
+    background: transparent; cursor: pointer; padding: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .sl-toggle.enabled { background: var(--enabled); }
+  .sl-toggle.enabled::after {
+    content: ""; width: 7px; height: 7px; border-radius: 2px; background: #fff;
+  }
+  .sl-toggle:not(.enabled):hover { border-color: var(--accent); }
+
+  .selected-lora .sl-btn {
+    flex: 0 0 28px; width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid var(--border); background: transparent;
+    border-radius: 6px; cursor: pointer; padding: 0;
+    color: var(--hint); transition: all 0.15s;
+  }
+  .selected-lora .sl-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .selected-lora .sl-btn.danger:hover { border-color: var(--danger); color: var(--danger); }
+  .selected-lora .sl-btn svg { width: 15px; height: 15px; }
+
+  .extra-item .sl-btn {
+    flex: 0 0 26px; width: 26px; height: 26px;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid var(--border); background: transparent;
+    border-radius: 6px; cursor: pointer; padding: 0;
+    color: var(--hint); transition: all 0.15s;
+  }
+  .extra-item .sl-btn:hover { border-color: var(--danger); color: var(--danger); }
+  .extra-item .sl-btn svg { width: 14px; height: 14px; }
+
+  /* ---------- 数字输入美化 ---------- */
   .params-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -278,17 +373,21 @@
     font-size: 16px; font-weight: 600; margin-bottom: 12px;
     display: flex; align-items: center; gap: 8px;
   }
-  .modal-title svg { width: 20px; height: 20px; color: var(--accent); }
+  .modal-title svg { width: 20px; height: 20px; color: var(--accent); flex: 0 0 auto; }
   .modal-body { font-size: 14px; color: var(--label); line-height: 1.7; margin-bottom: 20px; }
   .modal-body .en { color: var(--hint); font-size: 13px; display: block; margin-top: 6px; }
   .modal-body .ai-note {
     margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--border);
     font-size: 13px; color: var(--accent); font-style: italic;
   }
-  .modal-actions { display: flex; justify-content: flex-end; }
+  .modal-actions { display: flex; justify-content: flex-end; gap: 10px; }
   .modal-actions button { padding: 8px 20px; font-weight: 500; font-size: 14px; }
+  .modal-actions button.secondary {
+    background: var(--input-bg); border-color: var(--border); color: var(--text);
+  }
+  .modal-actions button.secondary:hover { border-color: var(--accent); color: var(--accent); }
 
-  .modal.wide-modal { max-width: 760px; min-width: 480px; width: 90vw; }
+  .modal.wide-modal { max-width: 860px; min-width: 520px; width: 92vw; }
   .lora-list {
     max-height: 480px; overflow-y: auto; display: flex; flex-direction: column;
     gap: 6px; margin-bottom: 16px; padding-right: 4px;
@@ -318,129 +417,96 @@
   .lora-refresh button:hover { border-color: var(--accent); color: var(--accent); }
   .lora-count { font-size: 12px; color: var(--hint); margin-bottom: 8px; }
 
-  .selected-loras-wrap {
-    display: flex; flex-direction: column; gap: 6px;
+  /* ---------- 预设提示词弹窗（两列） ---------- */
+  .preset-cols {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
   }
-  .selected-loras-header {
-    display: flex; justify-content: space-between; align-items: center;
-    font-size: 12.5px; color: var(--hint); margin-bottom: 2px;
+  .preset-col {
+    display: flex; flex-direction: column; gap: 6px; min-width: 0;
   }
-  .selected-loras-header .clear-all {
-    font-size: 11.5px; background: transparent; border: none; color: var(--danger);
-    cursor: pointer; padding: 0 4px; font-weight: 500;
+  .preset-col-header {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13.5px; font-weight: 600; margin-bottom: 4px;
+    padding-bottom: 6px; border-bottom: 1px solid var(--border);
   }
-  .selected-loras-header .clear-all:hover { text-decoration: underline; }
-  .selected-loras-list {
-    display: flex; flex-direction: column; gap: 6px;
-    max-height: 220px; overflow-y: auto; padding-right: 2px;
+  .preset-col-header .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .preset-col-header .dot.pos { background: var(--pos); }
+  .preset-col-header .dot.neg { background: var(--neg); }
+  .preset-col-header .badge { margin-left: auto; }
+  .preset-col-list {
+    max-height: 440px; overflow-y: auto; display: flex; flex-direction: column;
+    gap: 6px; padding-right: 4px;
   }
-  .selected-loras-list::-webkit-scrollbar { width: 5px; }
-  .selected-loras-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-  .selected-lora {
+  .preset-col-list::-webkit-scrollbar { width: 6px; }
+  .preset-col-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  .preset-item {
+    background: var(--lora-item-bg); border: 1px solid var(--border);
+    border-radius: 8px; padding: 9px 12px; font-size: 13px; color: var(--text);
+    display: flex; flex-direction: column; gap: 4px;
+    transition: border-color 0.15s; cursor: pointer; word-break: break-word;
+  }
+  .preset-item:hover { border-color: var(--accent); }
+  .preset-item .pi-head {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  }
+  .preset-item .pi-name {
+    font-weight: 600; font-size: 13px;
+    font-family: "SF Mono", "Consolas", monospace;
+  }
+  .preset-item .pi-source {
+    font-size: 10.5px; padding: 1px 6px; border-radius: 4px;
+    background: var(--badge-bg); color: var(--badge-text);
+  }
+  .preset-item .pi-source.builtin { color: var(--accent); }
+  .preset-item .pi-content {
+    font-size: 11.5px; color: var(--hint); line-height: 1.45;
+    font-family: "SF Mono", "Consolas", monospace;
+    white-space: pre-wrap;
+  }
+
+  /* ---------- 管理弹窗列表 ---------- */
+  .mgmt-list {
+    max-height: 440px; overflow-y: auto; display: flex; flex-direction: column;
+    gap: 6px; padding-right: 4px;
+  }
+  .mgmt-list::-webkit-scrollbar { width: 6px; }
+  .mgmt-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  .mgmt-item {
     display: flex; align-items: center; gap: 8px;
     background: var(--lora-item-bg); border: 1px solid var(--border);
-    border-radius: 8px; padding: 8px 11px; font-size: 13px;
+    border-radius: 8px; padding: 8px 11px; font-size: 12.5px;
     transition: border-color 0.15s, opacity 0.15s;
   }
-  .selected-lora.disabled { opacity: 0.45; }
-  .selected-lora .sl-path {
-    flex: 1; font-family: "SF Mono", "Consolas", monospace;
-    font-size: 12px; word-break: break-all; line-height: 1.35;
-    min-width: 0;
+  .mgmt-item.disabled { opacity: 0.45; }
+  .mgmt-item .mgmt-text { flex: 1; min-width: 0; line-height: 1.4; }
+  .mgmt-item .mgmt-name {
+    font-weight: 600; font-family: "SF Mono", "Consolas", monospace; font-size: 12.5px;
   }
-
-  /* 权重调整组：− 数值 + 垃圾桶（水平排列） */
-  .sl-weight-group {
-    display: flex;
-    align-items: stretch;
-    background: var(--input-bg);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    overflow: hidden;
-    height: 34px;
-    flex: 0 0 auto;
-    transition: border-color 0.2s, background 0.2s;
+  .mgmt-item .mgmt-content {
+    font-family: "SF Mono", "Consolas", monospace; font-size: 11.5px;
+    color: var(--hint); word-break: break-all; margin-top: 2px;
   }
-  .sl-weight-group:focus-within {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 2px rgba(74, 125, 255, 0.15);
-  }
-  .sl-weight-btn {
-    flex: 0 0 28px;
-    width: 28px;
-    min-width: 28px;
-    border: none;
-    background: var(--num-btn-bg);
-    color: var(--text);
-    font-size: 15px;
-    font-weight: 400;
-    line-height: 1;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.15s, color 0.15s;
-    padding: 0;
-    border-radius: 0;
-    user-select: none;
-    opacity: 0.85;
-  }
-  .sl-weight-btn:hover {
-    background: var(--num-btn-hover);
-    color: #fff;
-    opacity: 1;
-  }
-  .sl-weight-btn:active { opacity: 0.7; }
-  .sl-weight-btn.minus { border-right: 1px solid var(--border); }
-  .sl-weight-btn.plus { border-left: 1px solid var(--border); }
-  .sl-weight-input {
-    width: 46px;
-    flex: 0 0 46px;
-    border: none;
-    border-radius: 0;
-    background: transparent;
-    text-align: center;
-    font-weight: 500;
-    font-size: 12.5px;
-    padding: 0 2px;
-    min-width: 0;
-    -moz-appearance: textfield;
-    appearance: textfield;
-  }
-  .sl-weight-input::-webkit-outer-spin-button,
-  .sl-weight-input::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-  }
-
-  .selected-lora .sl-btn {
-    flex: 0 0 28px; width: 28px; height: 28px;
+  .mgmt-item .sl-btn {
+    flex: 0 0 26px; width: 26px; height: 26px;
     display: flex; align-items: center; justify-content: center;
     border: 1px solid var(--border); background: transparent;
     border-radius: 6px; cursor: pointer; padding: 0;
     color: var(--hint); transition: all 0.15s;
   }
-  .selected-lora .sl-btn:hover { border-color: var(--accent); color: var(--accent); }
-  .selected-lora .sl-btn.danger:hover { border-color: var(--danger); color: var(--danger); }
-  .selected-lora .sl-btn svg { width: 15px; height: 15px; }
+  .mgmt-item .sl-btn:hover { border-color: var(--danger); color: var(--danger); }
+  .mgmt-item .sl-btn svg { width: 14px; height: 14px; }
+  .mgmt-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 10px; }
+  .mgmt-actions .clear-all {
+    font-size: 12px; background: transparent; border: 1px solid var(--border);
+    color: var(--danger); cursor: pointer; padding: 5px 12px; border-radius: 6px;
+    font-weight: 500;
+  }
+  .mgmt-actions .clear-all:hover { border-color: var(--danger); }
+  .mgmt-actions .mgmt-info { font-size: 12px; color: var(--hint); }
 
-  .sl-toggle {
-    flex: 0 0 24px; width: 24px; height: 24px;
-    border-radius: 5px; border: 2px solid var(--enabled);
-    background: transparent; cursor: pointer; padding: 0;
-    display: flex; align-items: center; justify-content: center;
-    transition: background 0.15s, border-color 0.15s;
-  }
-  .sl-toggle.enabled { background: var(--enabled); }
-  .sl-toggle.enabled::after {
-    content: ""; width: 8px; height: 8px; border-radius: 2px; background: #fff;
-  }
-  .sl-toggle:not(.enabled):hover { border-color: var(--accent); }
-
-  .no-selected-hint {
-    font-size: 12.5px; color: var(--hint); text-align: center;
-    padding: 10px 0; border: 1px dashed var(--border); border-radius: 8px;
-  }
+  /* ---------- 确认弹窗 ---------- */
+  #confirmOverlay { z-index: 1100; }
 </style>
 </head>
 <body>
@@ -458,6 +524,7 @@
       <path d="M6 4 L6 20 L19 20"></path>
     </svg>
   </button>
+  <button class="sidebar-btn letter-btn" data-modal="preset" title="预设提示词 / Presets">P</button>
   <button class="sidebar-btn" data-modal="settings" title="设置 / Settings">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <circle cx="12" cy="12" r="3"></circle>
@@ -495,6 +562,34 @@
     </div>
     <div class="hint" id="extraPreviewHint"></div>
 
+    <!-- 附加正面列表 -->
+    <div class="extra-section">
+      <div class="extra-section-header">
+        <div class="extra-section-title">
+          <span class="dot pos"></span>附加正面 / Extra Positive
+          <span class="badge" id="extraPosBadge">0 条</span>
+        </div>
+        <button class="extra-manage-btn" data-manage="Positive">管理 / Manage</button>
+      </div>
+      <div class="extra-list" id="extraPosList">
+        <div class="extra-empty">暂无附加正面 / No extra positive</div>
+      </div>
+    </div>
+
+    <!-- 附加负面列表 -->
+    <div class="extra-section">
+      <div class="extra-section-header">
+        <div class="extra-section-title">
+          <span class="dot neg"></span>附加负面 / Extra Negative
+          <span class="badge" id="extraNegBadge">0 条</span>
+        </div>
+        <button class="extra-manage-btn" data-manage="Negative">管理 / Manage</button>
+      </div>
+      <div class="extra-list" id="extraNegList">
+        <div class="extra-empty">暂无附加负面 / No extra negative</div>
+      </div>
+    </div>
+
     <label>已选 Lora / Selected Lora <span class="badge" id="loraCountBadge">0 个</span></label>
     <div class="selected-loras-wrap">
       <div class="selected-loras-header">
@@ -506,7 +601,6 @@
       </div>
     </div>
 
-    <!-- 美化后的数字输入区：宽/高/步数/CFG -->
     <div class="params-grid">
       <div>
         <label>宽度 / Width</label>
@@ -571,12 +665,30 @@
   </div>
 </div>
 
+<!-- 确认弹窗 -->
+<div class="modal-overlay" id="confirmOverlay">
+  <div class="modal" id="confirmBox">
+    <div class="modal-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </svg>
+      <span id="confirmTitleText">提示 / Notice</span>
+    </div>
+    <div class="modal-body" id="confirmBody">此提示词已经添加，是否再次添加？</div>
+    <div class="modal-actions">
+      <button class="secondary" id="confirmCancel">取消 / Cancel</button>
+      <button id="confirmOk">确认 / Confirm</button>
+    </div>
+  </div>
+</div>
+
 <script>
 const $ = id => document.getElementById(id);
 const statusEl = $("status");
 const previewEl = $("preview");
 const goBtn = $("go");
-const downloadBtn = $("downloadBtn");
 
 // ---------- 主题控制 ----------
 const THEME_KEY = "sd-ui-theme";
@@ -639,7 +751,6 @@ function loraCount() {
   return selectedLoras.filter(l => l.enabled).length;
 }
 
-// 只做路径规范化：统一斜杠、去空格、去掉开头的 ./，不添加任何后缀
 function normalizeLoraPath(path) {
   if (!path) return "";
   let norm = String(path).trim().replace(/\\/g, "/");
@@ -740,7 +851,6 @@ function renderSelectedLoras() {
     pathEl.title = lora.path;
     row.appendChild(pathEl);
 
-    // 权重调整组：− 数值 + （水平排列）
     const weightGroup = document.createElement("div");
     weightGroup.className = "sl-weight-group";
 
@@ -811,7 +921,165 @@ function renderSelectedLoras() {
 $("clearAllLoras").addEventListener("click", clearAllLoras);
 renderSelectedLoras();
 
-// ---------- 通用弹窗（含双语 + AI 说明） ----------
+// ============================================================
+// source 中英双语格式化
+// ============================================================
+function formatSource(source) {
+  if (source === "Builtin") return "内置 / Builtin";
+  if (source === "Custom") return "自定义 / Custom";
+  return source || "?";
+}
+
+// ============================================================
+// 确认弹窗
+// ============================================================
+const confirmOverlay = $("confirmOverlay");
+const confirmBody = $("confirmBody");
+const confirmOk = $("confirmOk");
+const confirmCancel = $("confirmCancel");
+
+let confirmCallback = null;
+
+function showConfirm(message, onOk) {
+  confirmBody.textContent = message;
+  confirmCallback = onOk;
+  confirmOverlay.classList.add("show");
+}
+function hideConfirm() {
+  confirmOverlay.classList.remove("show");
+  confirmCallback = null;
+}
+confirmCancel.addEventListener("click", hideConfirm);
+confirmOverlay.addEventListener("click", (e) => { if (e.target === confirmOverlay) hideConfirm(); });
+confirmOk.addEventListener("click", () => {
+  const cb = confirmCallback;
+  hideConfirm();
+  if (typeof cb === "function") cb();
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && confirmOverlay.classList.contains("show")) hideConfirm();
+});
+
+// ============================================================
+// 附加提示词状态（正面 / 负面），不持久化
+// ============================================================
+const extraState = {
+  Positive: [],
+  Negative: []
+};
+
+function extraEnabledCount(kind) {
+  return extraState[kind].filter(x => x.enabled).length;
+}
+
+function addExtraPreset(kind, preset) {
+  if (!preset || !preset.content) return;
+  extraState[kind].push({
+    name: preset.name || "(未命名)",
+    source: preset.source || "",
+    content: String(preset.content),
+    enabled: true
+  });
+  renderExtraLists();
+  setStatus(`已添加到附加${kind === 'Positive' ? '正面' : '负面'} / Added to Extra ${kind}`);
+}
+
+function tryAddExtraPreset(kind, preset) {
+  if (!preset || !preset.content) return;
+  const dup = extraState[kind].some(x => x.content === String(preset.content));
+  if (dup) {
+    const kindLabel = kind === 'Positive' ? '正面' : '负面';
+    showConfirm(
+      `此提示词已经添加在附加${kindLabel}列表中，是否再次添加？\nThis prompt is already added. Add again?`,
+      () => addExtraPreset(kind, preset)
+    );
+    return;
+  }
+  addExtraPreset(kind, preset);
+}
+
+function removeExtra(kind, idx) {
+  if (idx < 0 || idx >= extraState[kind].length) return;
+  const removed = extraState[kind].splice(idx, 1)[0];
+  renderExtraLists();
+  setStatus(`已移除 / Removed：${removed.name}`);
+}
+
+function toggleExtra(kind, idx) {
+  if (idx < 0 || idx >= extraState[kind].length) return;
+  extraState[kind][idx].enabled = !extraState[kind][idx].enabled;
+  renderExtraLists();
+}
+
+function clearExtra(kind) {
+  if (extraState[kind].length === 0) return;
+  extraState[kind] = [];
+  renderExtraLists();
+  setStatus(`已清空附加${kind === 'Positive' ? '正面' : '负面'} / Extra ${kind} cleared`);
+}
+
+function renderExtraLists() {
+  renderExtraList("Positive");
+  renderExtraList("Negative");
+  updateExtraHint();
+}
+
+function renderExtraList(kind) {
+  const listEl = kind === "Positive" ? $("extraPosList") : $("extraNegList");
+  const badgeEl = kind === "Positive" ? $("extraPosBadge") : $("extraNegBadge");
+  const arr = extraState[kind];
+  const enabled = extraEnabledCount(kind);
+  badgeEl.textContent = `${enabled} / ${arr.length} 启用`;
+
+  if (arr.length === 0) {
+    listEl.innerHTML = `<div class="extra-empty">暂无附加${kind === 'Positive' ? '正面' : '负面'} / No extra ${kind.toLowerCase()}</div>`;
+    return;
+  }
+
+  listEl.innerHTML = "";
+  arr.forEach((item, idx) => {
+    const row = document.createElement("div");
+    row.className = "extra-item" + (item.enabled ? "" : " disabled");
+
+    const toggleBtn = document.createElement("button");
+    toggleBtn.className = "sl-toggle" + (item.enabled ? " enabled" : "");
+    toggleBtn.title = item.enabled ? "点击禁用 / Disable" : "点击启用 / Enable";
+    toggleBtn.addEventListener("click", () => toggleExtra(kind, idx));
+    row.appendChild(toggleBtn);
+
+    const textEl = document.createElement("div");
+    textEl.className = "ei-text";
+    const nameLine = document.createElement("div");
+    nameLine.textContent = `${item.name}${item.source ? ` [${formatSource(item.source)}]` : ""}`;
+    nameLine.style.fontWeight = "600";
+    const contentLine = document.createElement("div");
+    contentLine.className = "ei-content";
+    contentLine.textContent = item.content;
+    contentLine.title = item.content;
+    contentLine.style.overflow = "hidden";
+    contentLine.style.textOverflow = "ellipsis";
+    contentLine.style.whiteSpace = "nowrap";
+    textEl.appendChild(nameLine);
+    textEl.appendChild(contentLine);
+    row.appendChild(textEl);
+
+    const delBtn = document.createElement("button");
+    delBtn.className = "sl-btn danger";
+    delBtn.title = "删除 / Remove";
+    delBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="3 6 5 6 21 6"></polyline>
+      <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+      <path d="M10 11v6"></path><path d="M14 11v6"></path>
+      <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
+    </svg>`;
+    delBtn.addEventListener("click", () => removeExtra(kind, idx));
+    row.appendChild(delBtn);
+
+    listEl.appendChild(row);
+  });
+}
+
+// ---------- 通用弹窗 ----------
 const modalOverlay = $("modalOverlay");
 const modalTitleText = $("modalTitleText");
 const modalBody = $("modalBody");
@@ -857,8 +1125,8 @@ function openGenericModal(type) {
   modalBody.innerHTML = cfg.body;
   modalBody.style.display = "";
   modalIcon.innerHTML = cfg.icon;
-  const oldLora = modalBody.querySelector(".lora-list-wrapper");
-  if (oldLora) oldLora.remove();
+  const oldWrapper = modalBody.querySelector(".dynamic-wrapper");
+  if (oldWrapper) oldWrapper.remove();
   modalOverlay.classList.add("show");
 }
 function closeModal() {
@@ -870,6 +1138,7 @@ document.querySelectorAll(".sidebar-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     const type = btn.dataset.modal;
     if (type === "lora") openLoraModal();
+    else if (type === "preset") openPresetModal();
     else openGenericModal(type);
   });
 });
@@ -878,6 +1147,103 @@ modalOverlay.addEventListener("click", (e) => { if (e.target === modalOverlay) c
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape" && modalOverlay.classList.contains("show")) closeModal();
 });
+
+// ---------- 管理弹窗 ----------
+document.querySelectorAll(".extra-manage-btn").forEach(btn => {
+  btn.addEventListener("click", () => openManageModal(btn.dataset.manage));
+});
+
+function openManageModal(kind) {
+  const kindLabel = kind === "Positive" ? "正面" : "负面";
+  const kindLabelEn = kind;
+  modalBox.classList.add("wide-modal");
+  modalTitleText.textContent = `管理附加${kindLabel} / Manage Extra ${kindLabelEn}`;
+  modalIcon.innerHTML = '<path d="M6 4 L6 20 L19 20"></path>';
+  modalBody.textContent = "";
+  modalBody.style.display = "block";
+
+  const wrapper = document.createElement("div");
+  wrapper.className = "dynamic-wrapper";
+
+  const actions = document.createElement("div");
+  actions.className = "mgmt-actions";
+  const info = document.createElement("span");
+  info.className = "mgmt-info";
+  const clearBtn = document.createElement("button");
+  clearBtn.className = "clear-all";
+  clearBtn.textContent = "清空 / Clear";
+  actions.appendChild(info);
+  actions.appendChild(clearBtn);
+  wrapper.appendChild(actions);
+
+  const listEl = document.createElement("div");
+  listEl.className = "mgmt-list";
+  wrapper.appendChild(listEl);
+
+  modalBody.appendChild(wrapper);
+
+  function renderMgmt() {
+    const arr = extraState[kind];
+    info.textContent = `共 ${arr.length} 条 · 启用 ${extraEnabledCount(kind)} 条 / Total ${arr.length} · Enabled ${extraEnabledCount(kind)}`;
+    clearBtn.style.display = arr.length ? "inline" : "none";
+
+    if (arr.length === 0) {
+      listEl.innerHTML = `<div class="extra-empty">暂无附加${kindLabel} / No extra ${kindLabelEn.toLowerCase()}</div>`;
+      return;
+    }
+    listEl.innerHTML = "";
+    arr.forEach((item, idx) => {
+      const row = document.createElement("div");
+      row.className = "mgmt-item" + (item.enabled ? "" : " disabled");
+
+      const toggleBtn = document.createElement("button");
+      toggleBtn.className = "sl-toggle" + (item.enabled ? " enabled" : "");
+      toggleBtn.title = item.enabled ? "点击禁用 / Disable" : "点击启用 / Enable";
+      toggleBtn.addEventListener("click", () => {
+        toggleExtra(kind, idx);
+        renderMgmt();
+      });
+      row.appendChild(toggleBtn);
+
+      const textEl = document.createElement("div");
+      textEl.className = "mgmt-text";
+      const nameLine = document.createElement("div");
+      nameLine.className = "mgmt-name";
+      nameLine.textContent = `${item.name}${item.source ? ` [${formatSource(item.source)}]` : ""}`;
+      const contentLine = document.createElement("div");
+      contentLine.className = "mgmt-content";
+      contentLine.textContent = item.content;
+      textEl.appendChild(nameLine);
+      textEl.appendChild(contentLine);
+      row.appendChild(textEl);
+
+      const delBtn = document.createElement("button");
+      delBtn.className = "sl-btn danger";
+      delBtn.title = "删除 / Remove";
+      delBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="3 6 5 6 21 6"></polyline>
+        <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+        <path d="M10 11v6"></path><path d="M14 11v6"></path>
+        <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
+      </svg>`;
+      delBtn.addEventListener("click", () => {
+        removeExtra(kind, idx);
+        renderMgmt();
+      });
+      row.appendChild(delBtn);
+
+      listEl.appendChild(row);
+    });
+  }
+
+  clearBtn.addEventListener("click", () => {
+    clearExtra(kind);
+    renderMgmt();
+  });
+
+  renderMgmt();
+  modalOverlay.classList.add("show");
+}
 
 // ---------- Lora 扫描选择器 ----------
 async function openLoraModal() {
@@ -888,7 +1254,7 @@ async function openLoraModal() {
   modalBody.style.display = "block";
 
   const wrapper = document.createElement("div");
-  wrapper.className = "lora-list-wrapper";
+  wrapper.className = "dynamic-wrapper";
 
   const refreshRow = document.createElement("div");
   refreshRow.className = "lora-refresh";
@@ -937,8 +1303,6 @@ async function openLoraModal() {
         loras = Object.keys(data).map(k => ({ name: k, ...(data[k] || {}) }));
       }
 
-      console.log("[loras] raw API data:", data);
-
       const normalized = loras.map(item => {
         if (typeof item === 'string') return normalizeLoraPath(item);
         const p = item.path || item.display_path || item.name || item.filename;
@@ -980,14 +1344,141 @@ async function openLoraModal() {
   await loadLoras();
 }
 
+// ---------- 预设提示词弹窗（两列） ----------
+async function openPresetModal() {
+  modalBox.classList.add("wide-modal");
+  modalTitleText.textContent = "预设提示词（点击加入对应列表）/ Preset Prompts (click to add)";
+  modalIcon.innerHTML = '<path d="M6 4 L6 20 L19 20"></path>';
+  modalBody.textContent = "";
+  modalBody.style.display = "block";
+
+  const wrapper = document.createElement("div");
+  wrapper.className = "dynamic-wrapper";
+
+  const refreshRow = document.createElement("div");
+  refreshRow.className = "lora-refresh";
+  const refreshBtn = document.createElement("button");
+  refreshBtn.textContent = "刷新列表 / Refresh";
+  refreshRow.appendChild(refreshBtn);
+  wrapper.appendChild(refreshRow);
+
+  const countEl = document.createElement("div");
+  countEl.className = "lora-count";
+  countEl.textContent = "正在加载… / Loading…";
+  wrapper.appendChild(countEl);
+
+  const cols = document.createElement("div");
+  cols.className = "preset-cols";
+
+  const posCol = document.createElement("div");
+  posCol.className = "preset-col";
+  const posHeader = document.createElement("div");
+  posHeader.className = "preset-col-header";
+  posHeader.innerHTML = `<span class="dot pos"></span>正面 / Positive <span class="badge" id="presetPosBadge">0</span>`;
+  const posList = document.createElement("div");
+  posList.className = "preset-col-list";
+  posList.innerHTML = '<div class="lora-loading">⏳ 加载中… / Loading…</div>';
+  posCol.appendChild(posHeader);
+  posCol.appendChild(posList);
+
+  const negCol = document.createElement("div");
+  negCol.className = "preset-col";
+  const negHeader = document.createElement("div");
+  negHeader.className = "preset-col-header";
+  negHeader.innerHTML = `<span class="dot neg"></span>负面 / Negative <span class="badge" id="presetNegBadge">0</span>`;
+  const negList = document.createElement("div");
+  negList.className = "preset-col-list";
+  negList.innerHTML = '<div class="lora-loading">⏳ 加载中… / Loading…</div>';
+  negCol.appendChild(negHeader);
+  negCol.appendChild(negList);
+
+  cols.appendChild(posCol);
+  cols.appendChild(negCol);
+  wrapper.appendChild(cols);
+
+  modalBody.appendChild(wrapper);
+  modalOverlay.classList.add("show");
+
+  async function loadPresets() {
+    posList.innerHTML = '<div class="lora-loading">⏳ 加载中… / Loading…</div>';
+    negList.innerHTML = '<div class="lora-loading">⏳ 加载中… / Loading…</div>';
+    countEl.textContent = "正在加载… / Loading…";
+
+    try {
+      const resp = await fetch("/api/prompt");
+      if (!resp.ok) {
+        const text = await resp.text();
+        throw new Error(`HTTP ${resp.status}: ${text.slice(0, 200)}`);
+      }
+      const data = await resp.json();
+      let presets = [];
+      if (data && Array.isArray(data.p)) presets = data.p;
+      else if (Array.isArray(data)) presets = data;
+
+      const posPresets = presets.filter(p => p && p.kind === "Positive");
+      const negPresets = presets.filter(p => p && p.kind === "Negative");
+
+      renderPresetCol(posList, posPresets, "Positive", "presetPosBadge");
+      renderPresetCol(negList, negPresets, "Negative", "presetNegBadge");
+
+      countEl.textContent = `共 ${presets.length} 条预设（正面 ${posPresets.length} · 负面 ${negPresets.length}）/ Total ${presets.length}`;
+    } catch (err) {
+      const errMsg = `<div class="lora-empty">❌ 加载失败 / Load failed：${escapeHtml(err.message)}</div>`;
+      posList.innerHTML = errMsg;
+      negList.innerHTML = errMsg;
+      countEl.textContent = "加载失败 / Load failed";
+    }
+  }
+
+  function renderPresetCol(listEl, arr, kind, badgeId) {
+    const badgeEl = document.getElementById(badgeId);
+    if (badgeEl) badgeEl.textContent = String(arr.length);
+    listEl.innerHTML = "";
+    if (arr.length === 0) {
+      listEl.innerHTML = `<div class="lora-empty">📂 没有${kind === 'Positive' ? '正面' : '负面'}预设 / No ${kind.toLowerCase()} presets</div>`;
+      return;
+    }
+    arr.forEach(preset => {
+      const div = document.createElement("div");
+      div.className = "preset-item";
+      div.title = "点击加入附加列表 / Click to add";
+
+      const head = document.createElement("div");
+      head.className = "pi-head";
+      const nameEl = document.createElement("span");
+      nameEl.className = "pi-name";
+      nameEl.textContent = preset.name || "(未命名)";
+      const srcEl = document.createElement("span");
+      srcEl.className = "pi-source" + (preset.source === "Builtin" ? " builtin" : "");
+      srcEl.textContent = formatSource(preset.source);
+      head.appendChild(nameEl);
+      head.appendChild(srcEl);
+
+      const contentEl = document.createElement("div");
+      contentEl.className = "pi-content";
+      contentEl.textContent = preset.content || "";
+
+      div.appendChild(head);
+      div.appendChild(contentEl);
+
+      div.addEventListener("click", () => {
+        tryAddExtraPreset(kind, preset);
+        div.style.borderColor = "var(--accent)";
+        setTimeout(() => { div.style.borderColor = ""; }, 300);
+      });
+      listEl.appendChild(div);
+    });
+  }
+
+  refreshBtn.addEventListener("click", loadPresets);
+  await loadPresets();
+}
+
 function escapeHtml(str) {
   return String(str).replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
 }
 
-// ---------- 提示词 ----------
-const EXTRA_POSITIVE = "masterpiece, best quality, score_9, score_8, highres, absurdres, newest, year 2026, safe, extremely detailed, highly detailed";
-const EXTRA_NEGATIVE = "worst quality, low quality, lowres, blurry, jpeg artifacts, watermark, signature, text, bad anatomy, bad hands, extra digits, missing fingers, malformed limbs";
-
+// ---------- 提示词拼接 ----------
 function setStatus(msg, isError = false) {
   statusEl.textContent = msg;
   statusEl.style.color = isError ? "#ff6b6b" : "var(--label)";
@@ -998,12 +1489,24 @@ function buildPrompt() {
   const baseNegative = $("negative").value.trim();
   const useExtraPos = $("useExtraPositive").checked;
   const useExtraNeg = $("useExtraNegative").checked;
-  let finalPositive = basePrompt;
-  let finalNegative = baseNegative;
-  if (useExtraPos && EXTRA_POSITIVE.length)
-    finalPositive = finalPositive ? `${finalPositive}, ${EXTRA_POSITIVE}` : EXTRA_POSITIVE;
-  if (useExtraNeg && EXTRA_NEGATIVE.length)
-    finalNegative = finalNegative ? `${finalNegative}, ${EXTRA_NEGATIVE}` : EXTRA_NEGATIVE;
+
+  const extraPosContents = useExtraPos
+    ? extraState.Positive.filter(x => x.enabled).map(x => x.content).filter(Boolean)
+    : [];
+  const extraNegContents = useExtraNeg
+    ? extraState.Negative.filter(x => x.enabled).map(x => x.content).filter(Boolean)
+    : [];
+
+  const posParts = [];
+  if (basePrompt) posParts.push(basePrompt);
+  posParts.push(...extraPosContents);
+  const finalPositive = posParts.join(", ");
+
+  const negParts = [];
+  if (baseNegative) negParts.push(baseNegative);
+  negParts.push(...extraNegContents);
+  const finalNegative = negParts.join(", ");
+
   return { finalPositive, finalNegative };
 }
 
@@ -1090,13 +1593,14 @@ function downloadImage() {
 function updateExtraHint() {
   const usePos = $("useExtraPositive").checked;
   const useNeg = $("useExtraNegative").checked;
+  const posCount = extraEnabledCount("Positive");
+  const negCount = extraEnabledCount("Negative");
   $("extraPreviewHint").textContent =
-    (usePos ? "附加正面已启用 / Extra Pos ON" : "附加正面已关闭 / Extra Pos OFF") + " · " +
-    (useNeg ? "附加负面已启用 / Extra Neg ON" : "附加负面已关闭 / Extra Neg OFF");
+    (usePos ? `附加正面已启用（${posCount} 条） / Extra Pos ON` : "附加正面已关闭 / Extra Pos OFF") + " · " +
+    (useNeg ? `附加负面已启用（${negCount} 条） / Extra Neg ON` : "附加负面已关闭 / Extra Neg OFF");
 }
 $("useExtraPositive").addEventListener("change", updateExtraHint);
 $("useExtraNegative").addEventListener("change", updateExtraHint);
-updateExtraHint();
 
 $("width").value = 512;
 $("height").value = 512;
@@ -1104,8 +1608,11 @@ $("steps").value = 12;
 $("cfg").value = 2;
 
 goBtn.addEventListener("click", generate);
-$("downloadBtn").addEventListener("click", downloadImage);
+const initialDl = $("downloadBtn");
+if (initialDl) initialDl.addEventListener("click", downloadImage);
 previewEl.classList.remove("has-image");
+
+renderExtraLists();
 </script>
 </body>
 </html>
