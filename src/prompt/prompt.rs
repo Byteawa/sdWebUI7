@@ -1,7 +1,7 @@
 use std::{default, vec};
 
 use axum::{Json, extract::State};
-use serde::Serialize;
+use serde::{Serialize,Deserialize};
 
 use crate::{Apistate, prompt::prompt::{PromptKind::{Negative, Positive}, PromptSource::{Builtin, Custom}}};
 
@@ -42,26 +42,26 @@ impl Aprompt{
 }
  */
 
-#[derive(Debug,Clone,PartialEq, Eq,Serialize)]
+#[derive(Debug,Clone,PartialEq, Eq,Serialize,Deserialize)]
 pub struct PromptEntry {
     source: PromptSource,     // 枚举：自定义 or 自带
     kind: PromptKind,         // 枚举：正向 or 负向
     name: String,             // 名称（如 "人像优化"）
     content: String,          // 实际提示词内容
 }
-#[derive(Debug,Clone,PartialEq, Eq,Serialize)]
+#[derive(Debug,Clone,PartialEq, Eq,Serialize,Deserialize)]
 pub enum PromptSource {
     Custom,     // 用户自定义
     Builtin,    // 系统内置
 }
-#[derive(Debug,Clone,PartialEq, Eq,Serialize)]
+#[derive(Debug,Clone,PartialEq, Eq,Serialize,Deserialize)]
 pub enum PromptKind {
     Positive,   // 正面提示词
     Negative,   // 负面提示词    
 }
 
 //========================================================================================================
-#[derive(Debug,Clone,PartialEq, Eq,Serialize)]
+#[derive(Debug,Clone,PartialEq, Eq,Serialize,Deserialize)]
 pub struct SCpromptEntry {
     kind: PromptKind,         // 枚举：正向 or 负向
     name: String,             // 名称（如 "人像优化"）
@@ -71,7 +71,7 @@ pub struct SCpromptEntry {
 
 
 
-#[derive(Debug,Clone,PartialEq, Eq,Serialize,Default)]
+#[derive(Debug,Clone,PartialEq, Eq,Serialize,Default,Deserialize)]
 pub struct Sprompt{
     pub p:Vec<SCpromptEntry>,
 }
@@ -107,7 +107,7 @@ impl Sprompt {
 
 //=========================================================================================================================
 
-#[derive(Debug,Clone,PartialEq, Eq,Serialize,Default)]
+#[derive(Debug,Clone,PartialEq, Eq,Serialize,Default,Deserialize)]
 pub struct Cprompt{
     p:Vec<SCpromptEntry>,
 }
