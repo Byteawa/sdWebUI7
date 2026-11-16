@@ -8,19 +8,23 @@ use crate::prompt::prompt::Cprompt;
 
 
 
+//路径
+pub async fn path_config()->PathBuf{
+    let mut appdata = dirs::config_dir().expect("what");
+    appdata.push("sdWebUI7");
+    tokio::fs::create_dir_all(&appdata).await.expect("what");
+    appdata
+}
 
 
 
 
 //备份
-pub async fn win_backup_config(){
-    let mut appdata = dirs::config_dir().expect("what");
-    appdata.push("sdWebUI7");
-    tokio::fs::create_dir_all(&appdata).await.expect("what");
+pub async fn backup_config(){
+    let mut appdata = path_config().await;
     appdata.push("config.json");
     let config = tokio::fs::read_to_string(&appdata).await.expect("what");
-    let mut appdata = dirs::config_dir().expect("what");
-    appdata.push("sdWebUI7");
+    let mut appdata = path_config().await;
     appdata.push("backup");
     tokio::fs::create_dir_all(&appdata).await.expect("what");
     let a = Uuid::now_v7().to_string()+".backup.json";
@@ -31,17 +35,15 @@ pub async fn win_backup_config(){
 
 
 //初始化
-pub async fn win_init_config(){
+pub async fn init_config(){
     
 
 }
 
 
 //写入
-pub async fn win_writr_config(config:&Cprompt){
-    let mut appdata = dirs::config_dir().expect("what");
-    appdata.push("sdWebUI7");
-    tokio::fs::create_dir_all(&appdata).await.expect("what");
+pub async fn writr_config(config:&Cprompt){
+    let mut appdata = path_config().await;
     appdata.push("config.json");
     let config = serde_json::to_string(&config).expect("what");
     tokio::fs::write(appdata, config).await.expect("what");
@@ -50,10 +52,8 @@ pub async fn win_writr_config(config:&Cprompt){
 
 
 //读取
-pub async fn win_read_config()->Cprompt{
-    let mut appdata = dirs::config_dir().expect("what");
-    appdata.push("sdWebUI7");
-    tokio::fs::create_dir_all(&appdata).await.expect("what");
+pub async fn read_config()->Cprompt{
+    let mut appdata = path_config().await;
     appdata.push("config.json");
     let config = tokio::fs::read_to_string(appdata).await.expect("what");
     let a:Cprompt = serde_json::from_str(&config).expect("what");
@@ -63,9 +63,8 @@ pub async fn win_read_config()->Cprompt{
 
 
 //清除备份
-pub async fn win_clean_backup(){
-    let mut appdata = dirs::config_dir().expect("what");
-    appdata.push("sdWebUI7");
+pub async fn clean_backup(){
+    let mut appdata = path_config().await;
     appdata.push("backup");
     let _ = tokio::fs::remove_dir_all(&appdata).await;   // 忽略不存在时的错误
     tokio::fs::create_dir_all(appdata).await.expect("what");

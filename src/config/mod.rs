@@ -1,3 +1,3 @@
-pub mod windowsconfig;
+pub mod config;
 
-pub use crate::config::windowsconfig::{win_backup_config,win_clean_backup,win_init_config,win_read_config,win_writr_config,};
+pub use crate::config::config::{backup_config,clean_backup,init_config,read_config,writr_config,};
