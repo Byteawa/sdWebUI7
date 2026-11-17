@@ -1,824 +1,3 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-<meta charset="UTF-8">
-<title>sd-server 简易生图</title>
-<style>
-  :root {
-    --bg: #16181d;
-    --text: #e6e6e6;
-    --panel-bg: #1e2128;
-    --input-bg: #22252b;
-    --border: #333842;
-    --label: #9aa0a6;
-    --hint: #6b7280;
-    --accent: #4a7dff;
-    --preview-border: #333;
-    --preview-text: #555;
-    --badge-bg: #2a2f3a;
-    --badge-text: #8b93a0;
-    --toggle-bg: #1e2128;
-    --toggle-border: #2c303a;
-    --toggle-label: #c8ccd4;
-    --sidebar-bg: #1a1c22;
-    --sidebar-icon: #9aa0a6;
-    --sidebar-icon-hover: #e6e6e6;
-    --sidebar-icon-bg-hover: #2a2e38;
-    --lora-item-bg: #262a32;
-    --danger: #ff5c5c;
-    --enabled: #4a7dff;
-    --num-btn-bg: #2f3540;
-    --num-btn-hover: #4a7dff;
-    --pos: #4a7dff;
-    --neg: #ff9f43;
-  }
-
-  @media (prefers-color-scheme: light) {
-    :root {
-      --bg: #f5f6f8;
-      --text: #1a1d23;
-      --panel-bg: #ffffff;
-      --input-bg: #f0f2f5;
-      --border: #d0d4db;
-      --label: #5f6670;
-      --hint: #8b919b;
-      --accent: #3b6fe0;
-      --preview-border: #d0d4db;
-      --preview-text: #a0a6b0;
-      --badge-bg: #e4e7ec;
-      --badge-text: #6b7280;
-      --toggle-bg: #ffffff;
-      --toggle-border: #d0d4db;
-      --toggle-label: #3a3f48;
-      --sidebar-bg: #eceef2;
-      --sidebar-icon: #6b7280;
-      --sidebar-icon-hover: #1a1d23;
-      --sidebar-icon-bg-hover: #dfe2e8;
-      --lora-item-bg: #f0f2f5;
-      --danger: #e53935;
-      --enabled: #3b6fe0;
-      --num-btn-bg: #e8ecf2;
-      --num-btn-hover: #3b6fe0;
-      --pos: #3b6fe0;
-      --neg: #e8890c;
-    }
-  }
-
-  html[data-theme="light"] {
-    --bg: #f5f6f8; --text: #1a1d23; --panel-bg: #ffffff; --input-bg: #f0f2f5;
-    --border: #d0d4db; --label: #5f6670; --hint: #8b919b; --accent: #3b6fe0;
-    --preview-border: #d0d4db; --preview-text: #a0a6b0; --badge-bg: #e4e7ec;
-    --badge-text: #6b7280; --toggle-bg: #ffffff; --toggle-border: #d0d4db;
-    --toggle-label: #3a3f48; --sidebar-bg: #eceef2; --sidebar-icon: #6b7280;
-    --sidebar-icon-hover: #1a1d23; --sidebar-icon-bg-hover: #dfe2e8;
-    --lora-item-bg: #f0f2f5; --danger: #e53935; --enabled: #3b6fe0;
-    --num-btn-bg: #e8ecf2; --num-btn-hover: #3b6fe0; --pos: #3b6fe0; --neg: #e8890c;
-  }
-
-  html[data-theme="dark"] {
-    --bg: #16181d; --text: #e6e6e6; --panel-bg: #1e2128; --input-bg: #22252b;
-    --border: #333842; --label: #9aa0a6; --hint: #6b7280; --accent: #4a7dff;
-    --preview-border: #333; --preview-text: #555; --badge-bg: #2a2f3a;
-    --badge-text: #8b93a0; --toggle-bg: #1e2128; --toggle-border: #2c303a;
-    --toggle-label: #c8ccd4; --sidebar-bg: #1a1c22; --sidebar-icon: #9aa0a6;
-    --sidebar-icon-hover: #e6e6e6; --sidebar-icon-bg-hover: #2a2e38;
-    --lora-item-bg: #262a32; --danger: #ff5c5c; --enabled: #4a7dff;
-    --num-btn-bg: #2f3540; --num-btn-hover: #4a7dff; --pos: #4a7dff; --neg: #ff9f43;
-  }
-
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    font-family: -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif;
-    background: var(--bg); color: var(--text);
-    display: flex; min-height: 100vh;
-    transition: background 0.2s, color 0.2s;
-    font-size: 14px;
-  }
-
-  /* ---------- 左侧栏 ---------- */
-  .sidebar {
-    position: fixed; left: 0; top: 0; bottom: 0; width: 64px;
-    background: var(--sidebar-bg); border-right: 1px solid var(--border);
-    display: flex; flex-direction: column; align-items: center;
-    justify-content: flex-end; padding: 16px 0 24px; gap: 8px;
-    z-index: 100; transition: background 0.2s, border-color 0.2s;
-  }
-  .sidebar-btn {
-    width: 42px; height: 42px; display: flex; align-items: center;
-    justify-content: center; border: none; border-radius: 10px;
-    background: transparent; color: var(--sidebar-icon); cursor: pointer;
-    transition: background 0.15s, color 0.15s; padding: 0;
-  }
-  .sidebar-btn:hover { background: var(--sidebar-icon-bg-hover); color: var(--sidebar-icon-hover); }
-  .sidebar-btn svg { width: 22px; height: 22px; display: block; }
-
-  /* P 按钮加大 */
-  .sidebar-btn.letter-btn {
-    width: 52px; height: 52px; border-radius: 12px;
-    font-size: 28px; font-weight: 800;
-    font-family: "SF Mono", "Consolas", monospace;
-    letter-spacing: -0.5px;
-  }
-
-  /* ---------- 主区域 ---------- */
-  .main-area {
-    flex: 1; padding: 28px; padding-left: 92px;
-    display: flex; gap: 24px; min-height: 100vh;
-  }
-  .panel {
-    flex: 0 0 580px; display: flex; flex-direction: column; gap: 14px;
-    background: var(--panel-bg); padding: 24px; border-radius: 14px;
-    border: 1px solid var(--border); transition: background 0.2s, border-color 0.2s;
-    overflow-y: auto; max-height: calc(100vh - 56px);
-  }
-  .preview {
-    flex: 1; display: flex; align-items: center; justify-content: center;
-    border: 1px dashed var(--preview-border); border-radius: 12px; min-height: 300px;
-    color: var(--preview-text); font-size: 14px;
-    transition: border-color 0.2s, color 0.2s;
-    position: relative; overflow: hidden; background: var(--panel-bg);
-  }
-  .preview img { max-width: 100%; max-height: 100%; border-radius: 8px; display: block; object-fit: contain; }
-
-  .download-btn {
-    position: absolute; top: 12px; right: 12px; width: 36px; height: 36px;
-    border-radius: 8px; background: rgba(30, 33, 40, 0.75); backdrop-filter: blur(6px);
-    border: 1px solid var(--border); color: #fff;
-    display: flex; align-items: center; justify-content: center; cursor: pointer;
-    transition: background 0.2s, transform 0.15s; z-index: 10;
-    opacity: 0; visibility: hidden; pointer-events: none;
-  }
-  .preview.has-image .download-btn { opacity: 1; visibility: visible; pointer-events: auto; }
-  .download-btn:hover { background: var(--accent); border-color: var(--accent); transform: scale(1.05); }
-  .download-btn svg { width: 20px; height: 20px; stroke: #fff; fill: none; stroke-width: 2; }
-
-  label { font-size: 13.5px; color: var(--label); margin-bottom: -6px; }
-  input, textarea, button {
-    font: inherit; color: var(--text); background: var(--input-bg);
-    border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px;
-    transition: background 0.2s, border-color 0.2s, color 0.2s;
-  }
-  textarea { resize: vertical; font-size: 14px; line-height: 1.5; }
-  input { font-size: 14px; }
-  input:focus, textarea:focus { outline: none; border-color: var(--accent); }
-  .row { display: flex; gap: 10px; align-items: center; }
-  .row > * { flex: 1; }
-  button {
-    background: var(--accent); border-color: var(--accent); color: #fff;
-    cursor: pointer; font-weight: 600; padding: 12px; transition: opacity 0.2s;
-    font-size: 14.5px;
-  }
-  button:disabled { opacity: .5; cursor: not-allowed; }
-  .hint { font-size: 12.5px; color: var(--hint); }
-  #status { font-size: 13.5px; min-height: 18px; color: var(--label); }
-
-  .toggle-group {
-    display: flex; gap: 16px; align-items: center;
-    background: var(--toggle-bg); border-radius: 10px; padding: 9px 14px;
-    border: 1px solid var(--toggle-border); transition: background 0.2s, border-color 0.2s;
-    flex-wrap: wrap;
-  }
-  .toggle-group label {
-    display: flex; align-items: center; gap: 6px;
-    color: var(--toggle-label); font-size: 13.5px; cursor: pointer; margin: 0;
-  }
-  .toggle-group input[type="checkbox"] {
-    width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer;
-  }
-  .badge {
-    font-size: 11.5px; background: var(--badge-bg); border-radius: 4px;
-    padding: 2px 7px; color: var(--badge-text); margin-left: 6px;
-  }
-
-  /* ---------- 附加列表区块 ---------- */
-  .extra-section {
-    display: flex; flex-direction: column; gap: 8px;
-    background: var(--input-bg); border: 1px solid var(--border);
-    border-radius: 10px; padding: 10px 12px;
-  }
-  .extra-section-header {
-    display: flex; align-items: center; justify-content: space-between; gap: 10px;
-  }
-  .extra-section-title {
-    display: flex; align-items: center; gap: 8px; font-size: 13.5px; font-weight: 600;
-  }
-  .extra-section-title .dot {
-    width: 8px; height: 8px; border-radius: 50%; display: inline-block;
-  }
-  .extra-section-title .dot.pos { background: var(--pos); }
-  .extra-section-title .dot.neg { background: var(--neg); }
-  .extra-manage-btn {
-    font-size: 12px; padding: 5px 12px; font-weight: 500; flex: 0 0 auto;
-    background: var(--panel-bg); border: 1px solid var(--border); color: var(--text);
-    border-radius: 6px; cursor: pointer;
-  }
-  .extra-manage-btn:hover { border-color: var(--accent); color: var(--accent); }
-
-  .extra-list {
-    display: flex; flex-direction: column; gap: 6px;
-    max-height: 160px; overflow-y: auto; padding-right: 2px;
-  }
-  .extra-list::-webkit-scrollbar { width: 5px; }
-  .extra-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-  .extra-empty {
-    font-size: 12.5px; color: var(--hint); text-align: center;
-    padding: 8px 0; border: 1px dashed var(--border); border-radius: 8px;
-  }
-  .extra-item {
-    display: flex; align-items: center; gap: 8px;
-    background: var(--lora-item-bg); border: 1px solid var(--border);
-    border-radius: 8px; padding: 7px 10px; font-size: 12.5px;
-    transition: border-color 0.15s, opacity 0.15s;
-  }
-  .extra-item.disabled { opacity: 0.45; }
-  .extra-item .ei-text {
-    flex: 1; min-width: 0; line-height: 1.4;
-    font-family: "SF Mono", "Consolas", monospace; font-size: 12px;
-    word-break: break-all;
-  }
-  .extra-item .ei-content { color: var(--hint); font-size: 11.5px; }
-
-  .sl-toggle {
-    flex: 0 0 22px; width: 22px; height: 22px;
-    border-radius: 5px; border: 2px solid var(--enabled);
-    background: transparent; cursor: pointer; padding: 0;
-    display: flex; align-items: center; justify-content: center;
-    transition: background 0.15s, border-color 0.15s;
-  }
-  .sl-toggle.enabled { background: var(--enabled); }
-  .sl-toggle.enabled::after {
-    content: ""; width: 7px; height: 7px; border-radius: 2px; background: #fff;
-  }
-  .sl-toggle:not(.enabled):hover { border-color: var(--accent); }
-
-  .extra-item .sl-btn {
-    flex: 0 0 26px; width: 26px; height: 26px;
-    display: flex; align-items: center; justify-content: center;
-    border: 1px solid var(--border); background: transparent;
-    border-radius: 6px; cursor: pointer; padding: 0;
-    color: var(--hint); transition: all 0.15s;
-  }
-  .extra-item .sl-btn:hover { border-color: var(--danger); color: var(--danger); }
-  .extra-item .sl-btn svg { width: 14px; height: 14px; }
-
-  /* ---------- 数字输入美化 ---------- */
-  .params-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px 14px;
-  }
-  .params-grid > div {
-    display: flex; flex-direction: column; gap: 3px;
-  }
-  .params-grid label { margin-bottom: 0; }
-
-  .num-wrap {
-    display: flex;
-    align-items: stretch;
-    background: var(--input-bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    overflow: hidden;
-    transition: border-color 0.2s, background 0.2s;
-    height: 42px;
-  }
-  .num-wrap:focus-within {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(74, 125, 255, 0.15);
-  }
-  .num-wrap input {
-    flex: 1;
-    border: none;
-    border-radius: 0;
-    background: transparent;
-    text-align: center;
-    font-weight: 500;
-    font-size: 14px;
-    padding: 0 4px;
-    min-width: 0;
-    -moz-appearance: textfield;
-    appearance: textfield;
-  }
-  .num-wrap input::-webkit-outer-spin-button,
-  .num-wrap input::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-  }
-  .num-btn {
-    flex: 0 0 32px;
-    border: none;
-    background: var(--num-btn-bg);
-    color: var(--text);
-    font-size: 18px;
-    font-weight: 400;
-    line-height: 1;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.15s, color 0.15s;
-    padding: 0;
-    border-radius: 0;
-    user-select: none;
-    opacity: 0.85;
-  }
-  .num-btn:hover {
-    background: var(--num-btn-hover);
-    color: #fff;
-    opacity: 1;
-  }
-  .num-btn:active {
-    opacity: 0.7;
-  }
-  .num-btn.dec { border-right: 1px solid var(--border); }
-  .num-btn.inc { border-left: 1px solid var(--border); }
-
-  .theme-switcher { display: flex; gap: 6px; justify-content: flex-end; margin-bottom: 4px; }
-  .theme-switcher button {
-    font-size: 12.5px; padding: 5px 12px; font-weight: 500;
-    background: var(--input-bg); border: 1px solid var(--border); color: var(--text);
-    border-radius: 7px; cursor: pointer; flex: 0 0 auto;
-    transition: background 0.2s, border-color 0.2s, color 0.2s;
-  }
-  .theme-switcher button.active { background: var(--accent); border-color: var(--accent); color: #fff; }
-
-  /* ---------- 已选 Lora 列表 ---------- */
-  .selected-loras-wrap {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-  .selected-loras-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    font-size: 12.5px;
-    color: var(--hint);
-  }
-  .selected-loras-header .clear-all {
-    flex: 0 0 auto;
-    font-size: 12px;
-    padding: 5px 12px;
-    font-weight: 500;
-    background: var(--panel-bg);
-    border: 1px solid var(--border);
-    color: var(--danger);
-    border-radius: 6px;
-    cursor: pointer;
-    transition: border-color 0.15s;
-  }
-  .selected-loras-header .clear-all:hover { border-color: var(--danger); }
-
-  .selected-loras-list {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    max-height: 200px;
-    overflow-y: auto;
-    padding-right: 2px;
-  }
-  .selected-loras-list::-webkit-scrollbar { width: 5px; }
-  .selected-loras-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-
-  .no-selected-hint {
-    font-size: 12.5px;
-    color: var(--hint);
-    text-align: center;
-    padding: 10px 0;
-    border: 1px dashed var(--border);
-    border-radius: 8px;
-  }
-
-  .selected-lora {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: var(--lora-item-bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 7px 10px;
-    transition: border-color 0.15s, opacity 0.15s;
-  }
-  .selected-lora.disabled { opacity: 0.45; }
-
-  .selected-lora .sl-path {
-    flex: 1;
-    min-width: 0;
-    font-family: "SF Mono", "Consolas", monospace;
-    font-size: 12px;
-    line-height: 1.4;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .selected-lora .sl-weight-group {
-    flex: 0 0 auto;
-    display: flex;
-    align-items: stretch;
-    height: 28px;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    overflow: hidden;
-    background: var(--input-bg);
-  }
-  .selected-lora .sl-weight-btn {
-    flex: 0 0 22px;
-    width: 22px;
-    border: none;
-    background: var(--num-btn-bg);
-    color: var(--text);
-    font-size: 14px;
-    line-height: 1;
-    cursor: pointer;
-    padding: 0;
-    border-radius: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.15s, color 0.15s;
-    opacity: 0.85;
-  }
-  .selected-lora .sl-weight-btn:hover {
-    background: var(--num-btn-hover);
-    color: #fff;
-    opacity: 1;
-  }
-  .selected-lora .sl-weight-btn.minus { border-right: 1px solid var(--border); }
-  .selected-lora .sl-weight-btn.plus  { border-left: 1px solid var(--border); }
-
-  .selected-lora .sl-weight-input {
-    flex: 0 0 46px;
-    width: 46px;
-    border: none;
-    border-radius: 0;
-    background: transparent;
-    text-align: center;
-    font-size: 12px;
-    padding: 0 2px;
-    min-width: 0;
-    -moz-appearance: textfield;
-    appearance: textfield;
-  }
-  .selected-lora .sl-weight-input::-webkit-outer-spin-button,
-  .selected-lora .sl-weight-input::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-  }
-  .selected-lora .sl-weight-input:focus { outline: none; }
-
-  .selected-lora .sl-btn {
-    flex: 0 0 28px;
-    width: 28px;
-    height: 28px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid var(--border);
-    background: transparent;
-    border-radius: 6px;
-    cursor: pointer;
-    padding: 0;
-    color: var(--hint);
-    transition: all 0.15s;
-  }
-  .selected-lora .sl-btn:hover { border-color: var(--accent); color: var(--accent); }
-  .selected-lora .sl-btn.danger:hover { border-color: var(--danger); color: var(--danger); }
-  .selected-lora .sl-btn svg { width: 15px; height: 15px; }
-
-  /* ---------- 弹窗 ---------- */
-  .modal-overlay {
-    position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5);
-    display: flex; align-items: center; justify-content: center;
-    z-index: 1000; opacity: 0; visibility: hidden;
-    transition: opacity 0.2s, visibility 0.2s;
-  }
-  .modal-overlay.show { opacity: 1; visibility: visible; }
-  .modal {
-    background: var(--panel-bg); border: 1px solid var(--border);
-    border-radius: 12px; padding: 24px; min-width: 320px; max-width: 400px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-    transform: translateY(8px); transition: transform 0.2s;
-  }
-  .modal-overlay.show .modal { transform: translateY(0); }
-  .modal-title {
-    font-size: 16px; font-weight: 600; margin-bottom: 12px;
-    display: flex; align-items: center; gap: 8px;
-  }
-  .modal-title svg { width: 20px; height: 20px; color: var(--accent); flex: 0 0 auto; }
-  .modal-body { font-size: 14px; color: var(--label); line-height: 1.7; margin-bottom: 20px; }
-  .modal-body .en { color: var(--hint); font-size: 13px; display: block; margin-top: 6px; }
-  .modal-body .ai-note {
-    margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--border);
-    font-size: 13px; color: var(--accent); font-style: italic;
-  }
-  .modal-actions { display: flex; justify-content: flex-end; gap: 10px; }
-  .modal-actions button { padding: 8px 20px; font-weight: 500; font-size: 14px; }
-  .modal-actions button.secondary {
-    background: var(--input-bg); border-color: var(--border); color: var(--text);
-  }
-  .modal-actions button.secondary:hover { border-color: var(--accent); color: var(--accent); }
-
-  .modal.wide-modal { max-width: 860px; min-width: 520px; width: 92vw; }
-  .lora-list {
-    max-height: 480px; overflow-y: auto; display: flex; flex-direction: column;
-    gap: 6px; margin-bottom: 16px; padding-right: 4px;
-  }
-  .lora-list::-webkit-scrollbar { width: 6px; }
-  .lora-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-  .lora-item {
-    background: var(--lora-item-bg); border: 1px solid var(--border);
-    border-radius: 8px; padding: 10px 14px; font-size: 13px; color: var(--text);
-    display: flex; align-items: center; gap: 10px;
-    transition: border-color 0.15s; cursor: pointer; word-break: break-all;
-  }
-  .lora-item:hover { border-color: var(--accent); }
-  .lora-item .lora-icon { flex: 0 0 20px; color: var(--accent); display: flex; align-items: center; }
-  .lora-item .lora-icon svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; }
-  .lora-item .lora-name {
-    flex: 1; font-family: "SF Mono", "Consolas", monospace;
-    font-size: 12.5px; line-height: 1.4;
-  }
-  .lora-empty, .lora-loading { color: var(--hint); font-size: 14px; text-align: center; padding: 30px 0; }
-  .lora-refresh { display: flex; gap: 8px; margin-bottom: 12px; }
-  .lora-refresh button {
-    font-size: 13px; padding: 6px 16px; background: var(--input-bg);
-    border: 1px solid var(--border); color: var(--text); border-radius: 6px;
-    cursor: pointer; font-weight: 500; transition: background 0.15s, border-color 0.15s;
-  }
-  .lora-refresh button:hover { border-color: var(--accent); color: var(--accent); }
-  .lora-count { font-size: 12px; color: var(--hint); margin-bottom: 8px; }
-
-  /* ---------- 预设提示词弹窗（两列） ---------- */
-  .preset-cols {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
-  }
-  .preset-col {
-    display: flex; flex-direction: column; gap: 6px; min-width: 0;
-  }
-  .preset-col-header {
-    display: flex; align-items: center; gap: 8px;
-    font-size: 13.5px; font-weight: 600; margin-bottom: 4px;
-    padding-bottom: 6px; border-bottom: 1px solid var(--border);
-  }
-  .preset-col-header .dot { width: 8px; height: 8px; border-radius: 50%; }
-  .preset-col-header .dot.pos { background: var(--pos); }
-  .preset-col-header .dot.neg { background: var(--neg); }
-  .preset-col-header .badge { margin-left: auto; }
-  .preset-col-list {
-    max-height: 440px; overflow-y: auto; display: flex; flex-direction: column;
-    gap: 6px; padding-right: 4px;
-  }
-  .preset-col-list::-webkit-scrollbar { width: 6px; }
-  .preset-col-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-
-  .preset-item {
-    background: var(--lora-item-bg); border: 1px solid var(--border);
-    border-radius: 8px; padding: 9px 12px; font-size: 13px; color: var(--text);
-    display: flex; flex-direction: column; gap: 4px;
-    transition: border-color 0.15s; cursor: pointer; word-break: break-word;
-  }
-  .preset-item:hover { border-color: var(--accent); }
-  .preset-item .pi-head {
-    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
-  }
-  .preset-item .pi-name {
-    font-weight: 600; font-size: 13px;
-    font-family: "SF Mono", "Consolas", monospace;
-  }
-  .preset-item .pi-source {
-    font-size: 10.5px; padding: 1px 6px; border-radius: 4px;
-    background: var(--badge-bg); color: var(--badge-text);
-  }
-  .preset-item .pi-source.builtin { color: var(--accent); }
-  .preset-item .pi-content {
-    font-size: 11.5px; color: var(--hint); line-height: 1.45;
-    font-family: "SF Mono", "Consolas", monospace;
-    white-space: pre-wrap;
-  }
-
-  /* ---------- 管理弹窗列表 ---------- */
-  .mgmt-list {
-    max-height: 440px; overflow-y: auto; display: flex; flex-direction: column;
-    gap: 6px; padding-right: 4px;
-  }
-  .mgmt-list::-webkit-scrollbar { width: 6px; }
-  .mgmt-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-  .mgmt-item {
-    display: flex; align-items: center; gap: 8px;
-    background: var(--lora-item-bg); border: 1px solid var(--border);
-    border-radius: 8px; padding: 8px 11px; font-size: 12.5px;
-    transition: border-color 0.15s, opacity 0.15s;
-  }
-  .mgmt-item.disabled { opacity: 0.45; }
-  .mgmt-item .mgmt-text { flex: 1; min-width: 0; line-height: 1.4; }
-  .mgmt-item .mgmt-name {
-    font-weight: 600; font-family: "SF Mono", "Consolas", monospace; font-size: 12.5px;
-  }
-  .mgmt-item .mgmt-content {
-    font-family: "SF Mono", "Consolas", monospace; font-size: 11.5px;
-    color: var(--hint); word-break: break-all; margin-top: 2px;
-  }
-  .mgmt-item .sl-btn {
-    flex: 0 0 26px; width: 26px; height: 26px;
-    display: flex; align-items: center; justify-content: center;
-    border: 1px solid var(--border); background: transparent;
-    border-radius: 6px; cursor: pointer; padding: 0;
-    color: var(--hint); transition: all 0.15s;
-  }
-  .mgmt-item .sl-btn:hover { border-color: var(--danger); color: var(--danger); }
-  .mgmt-item .sl-btn svg { width: 14px; height: 14px; }
-  .mgmt-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 10px; }
-  .mgmt-actions .clear-all {
-    font-size: 12px; background: transparent; border: 1px solid var(--border);
-    color: var(--danger); cursor: pointer; padding: 5px 12px; border-radius: 6px;
-    font-weight: 500;
-  }
-  .mgmt-actions .clear-all:hover { border-color: var(--danger); }
-  .mgmt-actions .mgmt-info { font-size: 12px; color: var(--hint); }
-
-  /* ---------- 确认弹窗 ---------- */
-  #confirmOverlay { z-index: 1100; }
-</style>
-</head>
-<body>
-
-<div class="sidebar">
-  <button class="sidebar-btn" data-modal="info" title="信息 / Info">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <circle cx="12" cy="12" r="10"></circle>
-      <line x1="12" y1="16" x2="12" y2="12"></line>
-      <line x1="12" y1="8" x2="12.01" y2="8"></line>
-    </svg>
-  </button>
-  <button class="sidebar-btn" data-modal="lora" title="选择 Lora / Select Lora">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M6 4 L6 20 L19 20"></path>
-    </svg>
-  </button>
-  <button class="sidebar-btn letter-btn" data-modal="preset" title="预设提示词 / Presets">P</button>
-  <button class="sidebar-btn" data-modal="settings" title="设置 / Settings">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <circle cx="12" cy="12" r="3"></circle>
-      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-    </svg>
-  </button>
-  <button class="sidebar-btn" data-modal="terminal" title="终端 / Terminal">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <polyline points="4 17 10 11 4 5"></polyline>
-      <line x1="12" y1="19" x2="20" y2="19"></line>
-    </svg>
-  </button>
-</div>
-
-<div class="main-area">
-  <div class="panel">
-    <div class="theme-switcher">
-      <button data-theme-set="system" class="active">跟随系统 / Auto</button>
-      <button data-theme-set="dark">深色 / Dark</button>
-      <button data-theme-set="light">浅色 / Light</button>
-    </div>
-
-    <label>服务地址 / Server URL</label>
-    <input id="server" value="http://127.0.0.1:1234">
-
-    <label>主提示词 / Positive Prompt <span class="badge">用户输入</span></label>
-    <textarea id="prompt" rows="3"></textarea>
-
-    <label>负面提示词 / Negative Prompt <span class="badge">用户输入</span></label>
-    <textarea id="negative" rows="2"></textarea>
-
-    <div class="toggle-group">
-      <label><input type="checkbox" id="useExtraPositive" checked> 附加正面 / Extra Pos</label>
-      <label><input type="checkbox" id="useExtraNegative" checked> 附加负面 / Extra Neg</label>
-    </div>
-    <div class="hint" id="extraPreviewHint"></div>
-
-    <!-- 附加正面列表 -->
-    <div class="extra-section">
-      <div class="extra-section-header">
-        <div class="extra-section-title">
-          <span class="dot pos"></span>附加正面 / Extra Positive
-          <span class="badge" id="extraPosBadge">0 条</span>
-        </div>
-        <button class="extra-manage-btn" data-manage="Positive">管理 / Manage</button>
-      </div>
-      <div class="extra-list" id="extraPosList">
-        <div class="extra-empty">暂无附加正面 / No extra positive</div>
-      </div>
-    </div>
-
-    <!-- 附加负面列表 -->
-    <div class="extra-section">
-      <div class="extra-section-header">
-        <div class="extra-section-title">
-          <span class="dot neg"></span>附加负面 / Extra Negative
-          <span class="badge" id="extraNegBadge">0 条</span>
-        </div>
-        <button class="extra-manage-btn" data-manage="Negative">管理 / Manage</button>
-      </div>
-      <div class="extra-list" id="extraNegList">
-        <div class="extra-empty">暂无附加负面 / No extra negative</div>
-      </div>
-    </div>
-
-    <label>已选 Lora / Selected Lora <span class="badge" id="loraCountBadge">0 个</span></label>
-    <div class="selected-loras-wrap">
-      <div class="selected-loras-header">
-        <span id="loraListHint">点击左侧 L 图标添加 / Click L icon to add</span>
-        <button class="clear-all" id="clearAllLoras" style="display:none">清空 / Clear</button>
-      </div>
-      <div class="selected-loras-list" id="selectedLorasList">
-        <div class="no-selected-hint">暂未选择 Lora / No Lora selected</div>
-      </div>
-    </div>
-
-    <div class="params-grid">
-      <div>
-        <label>宽度 / Width</label>
-        <div class="num-wrap">
-          <button class="num-btn dec" data-target="width" data-step="-64" aria-label="减少宽度">−</button>
-          <input id="width" type="number" value="512" min="64" max="2048" step="64">
-          <button class="num-btn inc" data-target="width" data-step="64" aria-label="增加宽度">+</button>
-        </div>
-      </div>
-      <div>
-        <label>高度 / Height</label>
-        <div class="num-wrap">
-          <button class="num-btn dec" data-target="height" data-step="-64" aria-label="减少高度">−</button>
-          <input id="height" type="number" value="512" min="64" max="2048" step="64">
-          <button class="num-btn inc" data-target="height" data-step="64" aria-label="增加高度">+</button>
-        </div>
-      </div>
-      <div>
-        <label>步数 / Steps</label>
-        <div class="num-wrap">
-          <button class="num-btn dec" data-target="steps" data-step="-1" aria-label="减少步数">−</button>
-          <input id="steps" type="number" value="12" min="1" max="150" step="1">
-          <button class="num-btn inc" data-target="steps" data-step="1" aria-label="增加步数">+</button>
-        </div>
-      </div>
-      <div>
-        <label>CFG</label>
-        <div class="num-wrap">
-          <button class="num-btn dec" data-target="cfg" data-step="-0.5" aria-label="减少CFG">−</button>
-          <input id="cfg" type="number" step="0.5" value="2" min="1" max="30">
-          <button class="num-btn inc" data-target="cfg" data-step="0.5" aria-label="增加CFG">+</button>
-        </div>
-      </div>
-    </div>
-
-    <button id="go">生成 / Generate</button>
-    <div id="status"></div>
-  </div>
-
-  <div class="preview" id="preview">
-    <div class="download-btn" id="downloadBtn" title="下载图片 / Download">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-        <polyline points="7 10 12 15 17 10"></polyline>
-        <line x1="12" y1="15" x2="12" y2="3"></line>
-      </svg>
-    </div>
-    生成结果会显示在这里 / Result will appear here
-  </div>
-</div>
-
-<div class="modal-overlay" id="modalOverlay">
-  <div class="modal" id="modalBox">
-    <div class="modal-title" id="modalTitle">
-      <svg id="modalIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></svg>
-      <span id="modalTitleText">提示</span>
-    </div>
-    <div class="modal-body" id="modalBody">该功能尚未完成。</div>
-    <div class="modal-actions">
-      <button id="modalClose">确定 / OK</button>
-    </div>
-  </div>
-</div>
-
-<!-- 确认弹窗 -->
-<div class="modal-overlay" id="confirmOverlay">
-  <div class="modal" id="confirmBox">
-    <div class="modal-title">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="10"></circle>
-        <line x1="12" y1="8" x2="12" y2="12"></line>
-        <line x1="12" y1="16" x2="12.01" y2="16"></line>
-      </svg>
-      <span id="confirmTitleText">提示 / Notice</span>
-    </div>
-    <div class="modal-body" id="confirmBody">此提示词已经添加，是否再次添加？</div>
-    <div class="modal-actions">
-      <button class="secondary" id="confirmCancel">取消 / Cancel</button>
-      <button id="confirmOk">确认 / Confirm</button>
-    </div>
-  </div>
-</div>
-
-<script>
 const $ = id => document.getElementById(id);
 const statusEl = $("status");
 const previewEl = $("preview");
@@ -1092,6 +271,56 @@ confirmOk.addEventListener("click", () => {
 });
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape" && confirmOverlay.classList.contains("show")) hideConfirm();
+});
+
+// ============================================================
+// 预设预览弹窗（点击预设后弹出，含"添加"按钮）
+// ============================================================
+const presetPreviewOverlay = $("presetPreviewOverlay");
+const presetPreviewTitle = $("presetPreviewTitle");
+const presetPreviewMeta = document.querySelector("#presetPreviewBody .preset-preview-meta");
+const presetPreviewContent = document.querySelector("#presetPreviewBody .preset-preview-content");
+const presetPreviewAdd = $("presetPreviewAdd");
+const presetPreviewCancel = $("presetPreviewCancel");
+
+let pendingPreset = null;   // 暂存待确认的预设
+let pendingKind = null;     // 'Positive' | 'Negative'
+
+function showPresetPreview(kind, preset) {
+  pendingKind = kind;
+  pendingPreset = preset;
+
+  const kindLabel = kind === "Positive" ? "正面 / Positive" : "负面 / Negative";
+  presetPreviewTitle.textContent = `预览预设（${kindLabel}）/ Preview Preset`;
+
+  presetPreviewMeta.innerHTML = `
+    <strong>${escapeHtml(preset.name || "(未命名)")}</strong>
+    <span style="margin-left:8px;">[${escapeHtml(formatSource(preset.source))}]</span>
+  `;
+  presetPreviewContent.textContent = preset.content || "";
+
+  presetPreviewOverlay.classList.add("show");
+}
+
+function hidePresetPreview() {
+  presetPreviewOverlay.classList.remove("show");
+  pendingKind = null;
+  pendingPreset = null;
+}
+
+presetPreviewCancel.addEventListener("click", hidePresetPreview);
+presetPreviewOverlay.addEventListener("click", e => {
+  if (e.target === presetPreviewOverlay) hidePresetPreview();
+});
+presetPreviewAdd.addEventListener("click", () => {
+  if (!pendingPreset || !pendingKind) return;
+  tryAddExtraPreset(pendingKind, pendingPreset);
+  hidePresetPreview();
+});
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape" && presetPreviewOverlay.classList.contains("show")) {
+    hidePresetPreview();
+  }
 });
 
 // ============================================================
@@ -1481,7 +710,7 @@ async function openLoraModal() {
 // ---------- 预设提示词弹窗（两列） ----------
 async function openPresetModal() {
   modalBox.classList.add("wide-modal");
-  modalTitleText.textContent = "预设提示词（点击加入对应列表）/ Preset Prompts (click to add)";
+  modalTitleText.textContent = "预设提示词（点击查看详情）/ Preset Prompts (click to preview)";
   modalIcon.innerHTML = '<path d="M6 4 L6 20 L19 20"></path>';
   modalBody.textContent = "";
   modalBody.style.display = "block";
@@ -1533,29 +762,50 @@ async function openPresetModal() {
   modalBody.appendChild(wrapper);
   modalOverlay.classList.add("show");
 
+  // 从单个接口拉取预设，并打上来源标签
+  async function fetchPresetsFrom(url, sourceLabel) {
+    const resp = await fetch(url);
+    if (!resp.ok) {
+      const text = await resp.text();
+      throw new Error(`HTTP ${resp.status} from ${url}: ${text.slice(0, 200)}`);
+    }
+    const data = await resp.json();
+    let presets = [];
+    if (data && Array.isArray(data.p)) presets = data.p;
+    else if (Array.isArray(data)) presets = data;
+
+    // 为每条预设补上 source 字段（后端已去掉该字段，前端按接口来源自动标记）
+    return presets.map(p => ({ ...p, source: sourceLabel }));
+  }
+
   async function loadPresets() {
     posList.innerHTML = '<div class="lora-loading">⏳ 加载中… / Loading…</div>';
     negList.innerHTML = '<div class="lora-loading">⏳ 加载中… / Loading…</div>';
     countEl.textContent = "正在加载… / Loading…";
 
     try {
-      const resp = await fetch("/api/prompt");
-      if (!resp.ok) {
-        const text = await resp.text();
-        throw new Error(`HTTP ${resp.status}: ${text.slice(0, 200)}`);
-      }
-      const data = await resp.json();
-      let presets = [];
-      if (data && Array.isArray(data.p)) presets = data.p;
-      else if (Array.isArray(data)) presets = data;
+      // 并行请求两个接口
+      const [includedPresets, customPresets] = await Promise.all([
+        fetchPresetsFrom("/api/included_prompt", "Builtin"),
+        fetchPresetsFrom("/api/prompt", "Custom")
+      ]);
 
-      const posPresets = presets.filter(p => p && p.kind === "Positive");
-      const negPresets = presets.filter(p => p && p.kind === "Negative");
+      // 合并两个来源
+      const allPresets = [...includedPresets, ...customPresets];
+
+      const posPresets = allPresets.filter(p => p && p.kind === "Positive");
+      const negPresets = allPresets.filter(p => p && p.kind === "Negative");
 
       renderPresetCol(posList, posPresets, "Positive", "presetPosBadge");
       renderPresetCol(negList, negPresets, "Negative", "presetNegBadge");
 
-      countEl.textContent = `共 ${presets.length} 条预设（正面 ${posPresets.length} · 负面 ${negPresets.length}）/ Total ${presets.length}`;
+      const posBuiltin = posPresets.filter(p => p.source === "Builtin").length;
+      const posCustom = posPresets.length - posBuiltin;
+      const negBuiltin = negPresets.filter(p => p.source === "Builtin").length;
+      const negCustom = negPresets.length - negBuiltin;
+
+      countEl.textContent =
+        `共 ${allPresets.length} 条（正面 ${posPresets.length} [内置${posBuiltin}+自定义${posCustom}] · 负面 ${negPresets.length} [内置${negBuiltin}+自定义${negCustom}]）/ Total ${allPresets.length}`;
     } catch (err) {
       const errMsg = `<div class="lora-empty">❌ 加载失败 / Load failed：${escapeHtml(err.message)}</div>`;
       posList.innerHTML = errMsg;
@@ -1575,7 +825,7 @@ async function openPresetModal() {
     arr.forEach(preset => {
       const div = document.createElement("div");
       div.className = "preset-item";
-      div.title = "点击加入附加列表 / Click to add";
+      div.title = "点击预览 / Click to preview";
 
       const head = document.createElement("div");
       head.className = "pi-head";
@@ -1595,8 +845,9 @@ async function openPresetModal() {
       div.appendChild(head);
       div.appendChild(contentEl);
 
+      // 关键改动：点击后弹出预览弹窗，而不是直接添加
       div.addEventListener("click", () => {
-        tryAddExtraPreset(kind, preset);
+        showPresetPreview(kind, preset);
         div.style.borderColor = "var(--accent)";
         setTimeout(() => { div.style.borderColor = ""; }, 300);
       });
@@ -1747,6 +998,3 @@ if (initialDl) initialDl.addEventListener("click", downloadImage);
 previewEl.classList.remove("has-image");
 
 renderExtraLists();
-</script>
-</body>
-</html>

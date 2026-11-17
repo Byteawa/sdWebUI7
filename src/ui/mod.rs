@@ -1,2 +1,2 @@
 pub mod mainui;
-pub use mainui::mainui;
+pub use mainui::{index,indexcss,indexjs};

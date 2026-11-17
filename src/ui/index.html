@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>sd-server 简易生图</title>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body>
+
+<div class="sidebar">
+  <button class="sidebar-btn" data-modal="info" title="信息 / Info">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"></circle>
+      <line x1="12" y1="16" x2="12" y2="12"></line>
+      <line x1="12" y1="8" x2="12.01" y2="8"></line>
+    </svg>
+  </button>
+  <button class="sidebar-btn" data-modal="lora" title="选择 Lora / Select Lora">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M6 4 L6 20 L19 20"></path>
+    </svg>
+  </button>
+  <button class="sidebar-btn letter-btn" data-modal="preset" title="预设提示词 / Presets">P</button>
+  <button class="sidebar-btn" data-modal="settings" title="设置 / Settings">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="3"></circle>
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+    </svg>
+  </button>
+  <button class="sidebar-btn" data-modal="terminal" title="终端 / Terminal">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="4 17 10 11 4 5"></polyline>
+      <line x1="12" y1="19" x2="20" y2="19"></line>
+    </svg>
+  </button>
+</div>
+
+<div class="main-area">
+  <div class="panel">
+    <div class="theme-switcher">
+      <button data-theme-set="system" class="active">跟随系统 / Auto</button>
+      <button data-theme-set="dark">深色 / Dark</button>
+      <button data-theme-set="light">浅色 / Light</button>
+    </div>
+
+    <label>服务地址 / Server URL</label>
+    <input id="server" value="http://127.0.0.1:1234">
+
+    <label>主提示词 / Positive Prompt <span class="badge">用户输入</span></label>
+    <textarea id="prompt" rows="3"></textarea>
+
+    <label>负面提示词 / Negative Prompt <span class="badge">用户输入</span></label>
+    <textarea id="negative" rows="2"></textarea>
+
+    <div class="toggle-group">
+      <label><input type="checkbox" id="useExtraPositive" checked> 附加正面 / Extra Pos</label>
+      <label><input type="checkbox" id="useExtraNegative" checked> 附加负面 / Extra Neg</label>
+    </div>
+    <div class="hint" id="extraPreviewHint"></div>
+
+    <!-- 附加正面列表 -->
+    <div class="extra-section">
+      <div class="extra-section-header">
+        <div class="extra-section-title">
+          <span class="dot pos"></span>附加正面 / Extra Positive
+          <span class="badge" id="extraPosBadge">0 条</span>
+        </div>
+        <button class="extra-manage-btn" data-manage="Positive">管理 / Manage</button>
+      </div>
+      <div class="extra-list" id="extraPosList">
+        <div class="extra-empty">暂无附加正面 / No extra positive</div>
+      </div>
+    </div>
+
+    <!-- 附加负面列表 -->
+    <div class="extra-section">
+      <div class="extra-section-header">
+        <div class="extra-section-title">
+          <span class="dot neg"></span>附加负面 / Extra Negative
+          <span class="badge" id="extraNegBadge">0 条</span>
+        </div>
+        <button class="extra-manage-btn" data-manage="Negative">管理 / Manage</button>
+      </div>
+      <div class="extra-list" id="extraNegList">
+        <div class="extra-empty">暂无附加负面 / No extra negative</div>
+      </div>
+    </div>
+
+    <label>已选 Lora / Selected Lora <span class="badge" id="loraCountBadge">0 个</span></label>
+    <div class="selected-loras-wrap">
+      <div class="selected-loras-header">
+        <span id="loraListHint">点击左侧 L 图标添加 / Click L icon to add</span>
+        <button class="clear-all" id="clearAllLoras" style="display:none">清空 / Clear</button>
+      </div>
+      <div class="selected-loras-list" id="selectedLorasList">
+        <div class="no-selected-hint">暂未选择 Lora / No Lora selected</div>
+      </div>
+    </div>
+
+    <div class="params-grid">
+      <div>
+        <label>宽度 / Width</label>
+        <div class="num-wrap">
+          <button class="num-btn dec" data-target="width" data-step="-64" aria-label="减少宽度">−</button>
+          <input id="width" type="number" value="512" min="64" max="2048" step="64">
+          <button class="num-btn inc" data-target="width" data-step="64" aria-label="增加宽度">+</button>
+        </div>
+      </div>
+      <div>
+        <label>高度 / Height</label>
+        <div class="num-wrap">
+          <button class="num-btn dec" data-target="height" data-step="-64" aria-label="减少高度">−</button>
+          <input id="height" type="number" value="512" min="64" max="2048" step="64">
+          <button class="num-btn inc" data-target="height" data-step="64" aria-label="增加高度">+</button>
+        </div>
+      </div>
+      <div>
+        <label>步数 / Steps</label>
+        <div class="num-wrap">
+          <button class="num-btn dec" data-target="steps" data-step="-1" aria-label="减少步数">−</button>
+          <input id="steps" type="number" value="12" min="1" max="150" step="1">
+          <button class="num-btn inc" data-target="steps" data-step="1" aria-label="增加步数">+</button>
+        </div>
+      </div>
+      <div>
+        <label>CFG</label>
+        <div class="num-wrap">
+          <button class="num-btn dec" data-target="cfg" data-step="-0.5" aria-label="减少CFG">−</button>
+          <input id="cfg" type="number" step="0.5" value="2" min="1" max="30">
+          <button class="num-btn inc" data-target="cfg" data-step="0.5" aria-label="增加CFG">+</button>
+        </div>
+      </div>
+    </div>
+
+    <button id="go">生成 / Generate</button>
+    <div id="status"></div>
+  </div>
+
+  <div class="preview" id="preview">
+    <div class="download-btn" id="downloadBtn" title="下载图片 / Download">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+        <polyline points="7 10 12 15 17 10"></polyline>
+        <line x1="12" y1="15" x2="12" y2="3"></line>
+      </svg>
+    </div>
+    生成结果会显示在这里 / Result will appear here
+  </div>
+</div>
+
+<!-- 通用提示弹窗 -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modalBox">
+    <div class="modal-title" id="modalTitle">
+      <svg id="modalIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></svg>
+      <span id="modalTitleText">提示</span>
+    </div>
+    <div class="modal-body" id="modalBody">该功能尚未完成。</div>
+    <div class="modal-actions">
+      <button id="modalClose">确定 / OK</button>
+    </div>
+  </div>
+</div>
+
+<!-- 确认弹窗 -->
+<div class="modal-overlay" id="confirmOverlay">
+  <div class="modal" id="confirmBox">
+    <div class="modal-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </svg>
+      <span id="confirmTitleText">提示 / Notice</span>
+    </div>
+    <div class="modal-body" id="confirmBody">此提示词已经添加，是否再次添加？</div>
+    <div class="modal-actions">
+      <button class="secondary" id="confirmCancel">取消 / Cancel</button>
+      <button id="confirmOk">确认 / Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- 预设预览弹窗（点击预设后弹出，含"添加"按钮） -->
+<div class="modal-overlay" id="presetPreviewOverlay">
+  <div class="modal wide-modal" id="presetPreviewBox">
+    <div class="modal-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M6 4 L6 20 L19 20"></path>
+      </svg>
+      <span id="presetPreviewTitle">预览预设 / Preview Preset</span>
+    </div>
+    <div class="modal-body" id="presetPreviewBody">
+      <div class="preset-preview-meta"></div>
+      <div class="preset-preview-content"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="secondary" id="presetPreviewCancel">取消 / Cancel</button>
+      <button id="presetPreviewAdd">添加到附加列表 / Add to Extra List</button>
+    </div>
+  </div>
+</div>
+
+<script src="/index.js"></script>
+</body>
+</html>
