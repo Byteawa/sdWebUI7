@@ -1,17 +1,19 @@
 mod config;
 mod ui;
 mod prompt;
-
+mod runserver;
 
 
 use std::sync::Arc;
 use axum::extract::State;
+use axum::routing::post;
 use axum::{Router,routing::get};
 pub use tokio;
 
 use crate::ui::mainui::{index,indexcss,indexjs};
 use crate::prompt::prompt::{Cprompt, Sprompt};
-pub use crate::config::config::{backup_config,clean_backup,init_config,read_config,writr_config,};
+use crate::runserver::{win_run, win_runserver};
+pub use crate::config::prompt_config::{backup_prompt,clean_backup,init_config,read_prompt,writr_prompt,};
 
 
 #[derive(Debug,Clone,PartialEq, Eq)]
@@ -40,12 +42,13 @@ async fn main() {
     //win_backup_config().await;
     //win_clean_backup().await;
 
-    println!("know....{}",list.local_addr().expect("what"));
+    println!("URL {}",list.local_addr().expect("what"));
     let _ = webbrowser::open(&format!("http://{}",list.local_addr().expect("what")));
 
     let apiserver:Router = axum::Router::new()
         .route("/included_prompt",get(prompt::included_prompt))
         .route("/prompt", get(prompt::prompt))
+        .route("/win_runserver",post(win_run))
         .with_state(state);
 
 

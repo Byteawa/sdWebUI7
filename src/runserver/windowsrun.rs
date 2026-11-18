@@ -1,22 +1,38 @@
-use std::process::Command;
-pub fn run(dit:&str,clip:&str,vae:&str,lorapath:&str,post:&str){
-        let status = Command::new("sd-server.exe")
-        .args([
-            "--diffusion-model",
-            &dit,
-            "--llm",
-            &clip,
-            "--vae",
-            &vae,
-            "--listen-ip",
-            "127.0.0.1",
-            "--listen-port",
-            &post,
-            "--vae-tiling",
-            "--lora-model-dir",
-            &lorapath,
-        ])
-        .status()
-        .expect("what");
+use std::{io, time::Duration};
 
+use axum::response::IntoResponse;
+
+
+
+
+pub async fn win_runserver(dit: &str,clip: &str,vae: &str,lorapath: &str,post: &str,) -> Result<(tokio::process::Child, u16), io::Error> {
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await?;
+    let port = listener.local_addr()?.port();
+    drop(listener); // 释放端口，让 sd-server 能绑上
+
+    let mut child = tokio::process::Command::new("sd-server.exe")
+        .args([
+            "--diffusion-model", dit,
+            "--llm", clip,
+            "--vae", vae,
+            "--listen-ip", "127.0.0.1",
+            "--listen-port", &port.to_string(),
+            "--vae-tiling",
+            "--lora-model-dir", lorapath,
+        ])
+        .spawn()?;
+
+    // 等一小会儿让进程起来
+    tokio::time::sleep(Duration::from_millis(2000)).await;
+
+    // 检查一下有没有立即崩
+    if let Ok(Some(code)) = child.try_wait() {
+        eprintln!("sd-server.exe exited immediately with code {:?}", code);
+    }
+
+    Ok((child, port))
+}
+
+pub async fn win_run()->impl IntoResponse{
+    ""
 }

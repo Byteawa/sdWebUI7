@@ -1,3 +1,3 @@
-pub mod config;
+pub mod prompt_config;
 
-pub use crate::config::config::{backup_config,clean_backup,init_config,read_config,writr_config,};
+pub use crate::config::prompt_config::{backup_prompt,clean_backup,init_config,read_prompt,writr_prompt,};

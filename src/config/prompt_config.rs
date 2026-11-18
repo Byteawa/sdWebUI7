@@ -20,9 +20,9 @@ pub async fn path_config()->PathBuf{
 
 
 //备份
-pub async fn backup_config(){
+pub async fn backup_prompt(){
     let mut appdata = path_config().await;
-    appdata.push("config.json");
+    appdata.push("prompt.json");
     let config = tokio::fs::read_to_string(&appdata).await.expect("what");
     let mut appdata = path_config().await;
     appdata.push("backup");
@@ -42,9 +42,9 @@ pub async fn init_config(){
 
 
 //写入
-pub async fn writr_config(config:&Cprompt){
+pub async fn writr_prompt(config:&Cprompt){
     let mut appdata = path_config().await;
-    appdata.push("config.json");
+    appdata.push("prompt.json");
     let config = serde_json::to_string(&config).expect("what");
     tokio::fs::write(appdata, config).await.expect("what");
     println!("write config");
@@ -52,9 +52,9 @@ pub async fn writr_config(config:&Cprompt){
 
 
 //读取
-pub async fn read_config()->Cprompt{
+pub async fn read_prompt()->Cprompt{
     let mut appdata = path_config().await;
-    appdata.push("config.json");
+    appdata.push("prompt.json");
     let config = tokio::fs::read_to_string(appdata).await.expect("what");
     let a:Cprompt = serde_json::from_str(&config).expect("what");
     println!("read config");
