@@ -1,5 +1,5 @@
-use std::{io, time::Duration};
-
+use std::{io, sync::Mutex, time::Duration};
+use std::sync::Arc;
 use axum::response::IntoResponse;
 
 
@@ -35,4 +35,13 @@ pub async fn win_runserver(dit: &str,clip: &str,vae: &str,lorapath: &str,post: &
 
 pub async fn win_run()->impl IntoResponse{
     ""
+}
+
+
+
+
+#[derive(Debug,Clone)]
+struct Childandport{
+    child:Arc<Mutex<tokio::process::Child>>,
+    post:u16,
 }
