@@ -72,13 +72,13 @@ impl<'a> IntoIterator for &'a Cprompt {
 //===========================================================================================================
 
 #[axum::debug_handler]
-pub async fn included_prompt(State(api): State<Apistate>)->Json<Arc<Sprompt>>{
-    Json(api.p1)
+pub async fn included_prompt(State(Apistate): State<Apistate>)->Json<Arc<Sprompt>>{
+    Json(Apistate.p1)
 }
 
 #[axum::debug_handler]
-pub async fn prompt(State(api): State<Apistate>)->Json<Cprompt>{
-    Json(api.p2)
+pub async fn prompt(State(Apistate): State<Apistate>)->Json<Cprompt>{
+    Json(Apistate.p2)
 }
 
 

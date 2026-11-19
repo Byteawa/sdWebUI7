@@ -4,7 +4,8 @@ mod prompt;
 mod runserver;
 
 
-use std::sync::Arc;
+
+use std::sync::{Arc,Mutex};
 use axum::extract::State;
 use axum::routing::post;
 use axum::{Router,routing::get};
@@ -14,18 +15,21 @@ use crate::ui::mainui::{index,indexcss,indexjs};
 use crate::prompt::prompt::{Cprompt, Sprompt};
 use crate::runserver::{win_run, win_runserver};
 pub use crate::config::prompt_config::{backup_prompt,clean_backup,init_config,read_prompt,writr_prompt,};
+pub use crate::runserver::Childandport;
 
 
-#[derive(Debug,Clone,PartialEq, Eq)]
+
+#[derive(Debug,Clone)]
 pub struct Apistate{
     p1:Arc<Sprompt>,
     p2:Cprompt,
+    sdserver:Arc<Mutex<Option<Childandport>>>,
 }
 impl Default for Apistate {
     fn default() -> Self {
         let mut a = Sprompt::default();
         a.init();
-        Apistate { p1: Arc::new(a),p2: Cprompt::default()}
+        Apistate { p1: Arc::new(a),p2: Cprompt::default(),sdserver:Arc::new(Mutex::new(None))}
     }
 }
 
@@ -61,4 +65,27 @@ async fn main() {
         //.fallback(mainui);
 
     axum::serve(list,server).await.expect("what")
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+#[derive(Debug,Clone)]
+pub enum okanderr {
+    Ok,
+    Error
+}
+#[derive(Debug,Clone)]
+pub struct res{
+    state:okanderr,
+    text:String,
 }

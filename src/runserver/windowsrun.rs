@@ -1,11 +1,15 @@
+use std::panic::resume_unwind;
 use std::{io, sync::Mutex, time::Duration};
 use std::sync::Arc;
+use axum::extract::State;
 use axum::response::IntoResponse;
 
+use crate::Apistate;
 
 
 
-pub async fn win_runserver(dit: &str,clip: &str,vae: &str,lorapath: &str,post: &str,) -> Result<(tokio::process::Child, u16), io::Error> {
+
+pub async fn win_runserver(dit: &str,clip: &str,vae: &str,lorapath: &str,post: &str,) -> Result<Childandport, io::Error> {
     let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await?;
     let port = listener.local_addr()?.port();
     drop(listener); // 释放端口，让 sd-server 能绑上
@@ -30,18 +34,23 @@ pub async fn win_runserver(dit: &str,clip: &str,vae: &str,lorapath: &str,post: &
         eprintln!("sd-server.exe exited immediately with code {:?}", code);
     }
 
-    Ok((child, port))
+    Ok(Childandport { child:Arc::new(Mutex::new(child)), port:port })
 }
 
-pub async fn win_run()->impl IntoResponse{
-    ""
+pub async fn win_run(State(Apistate):State<Apistate>)->impl IntoResponse{
+    let a = Apistate.sdserver.lock().expect("what");
+    if let Some(a) = a.as_ref() {
+        return "";
+    }else {
+        return "";
+    }
 }
 
 
 
 
-#[derive(Debug,Clone)]
-struct Childandport{
-    child:Arc<Mutex<tokio::process::Child>>,
-    post:u16,
+#[derive(Debug,Clone,)]
+pub struct Childandport{
+    pub child:Arc<Mutex<tokio::process::Child>>,
+    pub port:u16,
 }
