@@ -1,8 +1,11 @@
 use std::panic::resume_unwind;
+//use std::process::Child;
 use std::{io, sync::Mutex, time::Duration};
 use std::sync::Arc;
 use axum::extract::State;
 use axum::response::IntoResponse;
+use tokio::process::Child;
+
 
 use crate::Apistate;
 
@@ -34,7 +37,7 @@ pub async fn win_runserver(dit: &str,clip: &str,vae: &str,lorapath: &str,post: &
         eprintln!("sd-server.exe exited immediately with code {:?}", code);
     }
 
-    Ok(Childandport { child:Arc::new(Mutex::new(child)), port:port })
+    Ok(Childandport { child:child, port:port })
 }
 
 pub async fn win_run(State(Apistate):State<Apistate>)->impl IntoResponse{
@@ -49,8 +52,8 @@ pub async fn win_run(State(Apistate):State<Apistate>)->impl IntoResponse{
 
 
 
-#[derive(Debug,Clone,)]
+#[derive(Debug)]
 pub struct Childandport{
-    pub child:Arc<Mutex<tokio::process::Child>>,
+    pub child:Child,
     pub port:u16,
 }

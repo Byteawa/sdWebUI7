@@ -54,12 +54,15 @@ async fn main() {
         .route("/prompt", get(prompt::prompt))
         .route("/win_runserver",post(win_run))
         .with_state(state);
+    
+    let assetsapi:Router = axum::Router::new()
+        .route("/index.js", get(indexjs))
+        .route("/index.css", get(indexcss));
 
 
     let server:Router<()> = axum::Router::new()
         .route("/", get(index))
-        .route("/index.js", get(indexjs))
-        .route("/index.css", get(indexcss))
+        .nest("/assetsapi", assetsapi)
         .nest("/api", apiserver);
 
         //.fallback(mainui);
