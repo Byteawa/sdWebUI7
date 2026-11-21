@@ -45,7 +45,23 @@ pub async fn win_runserver(dit: &str,clip: &str,vae: &str,lorapath: &str,) -> Re
 
 #[axum::debug_handler]
 pub async fn win_run(State(api):State<Sdapi>,Json(Sd):Json<Sd>)->Json<Res>{
-    if path_exists(&Sd.dit).await && path_exists(&Sd.clip).await && path_exists(&Sd.vae).await && path_exists(&Sd.lorapath).await{
+
+//path_exists(&Sd.dit).await && path_exists(&Sd.clip).await && path_exists(&Sd.vae).await && path_exists(&Sd.lorapath).await{
+    let (r1,r2,r3,r4) = tokio::join!(
+        tokio::fs::metadata(&Sd.dit),
+        tokio::fs::metadata(&Sd.clip),
+        tokio::fs::metadata(&Sd.vae),
+        tokio::fs::metadata(&Sd.lorapath),
+    );
+
+    let mut errors = String::new();
+
+    if let Err(e) = r1 { errors.push_str(&format!("[dit, {}\n]", e)); }
+    if let Err(e) = r2 { errors.push_str(&format!("[clip, {}\n]", e)); }
+    if let Err(e) = r3 { errors.push_str(&format!("[vae, {}\n]", e)); }
+    if let Err(e) = r4 { errors.push_str(&format!("[lorapath, {}\n]", e)); }
+
+    if errors.is_empty(){
     //是否运行
     let is_running = {
         let a = api.sd.lock().expect("what");
@@ -62,7 +78,7 @@ pub async fn win_run(State(api):State<Sdapi>,Json(Sd):Json<Sd>)->Json<Res>{
         }
     }
     }else {
-        return Json(Res{state:Error,text:"what????/理论上不会发生".to_string()});
+        return Json(Res{state:Error,text:errors});
     }
     
 }
@@ -88,17 +104,21 @@ pub struct Sd{
 
 
 
-
+/* 
 /// 异步判断路径是否存在（文件或目录）
 ///
 /// - 输入：`String`
 /// - 路径不合法、无权限、不存在，均视为不存在
-pub async fn path_exists(path: &str) -> bool {
+pub async fn path_exists(path: &str) -> Result<bool,io::Error> {
     let p = Path::new(&path);
 
     // 1. 先做基础路径合法性检查
     if p.as_os_str().is_empty() {
-        return false;
+        return Ok(false);
+    }
+    match tokio::fs::metadata(p).await {
+        Ok(_) => Ok(true),
+        Err(e) => Err(e),
     }
 
     // 2. 异步查询元数据
@@ -114,7 +134,7 @@ pub async fn path_exists(path: &str) -> bool {
         }
     }
 }
-
+*/
 
 
 
