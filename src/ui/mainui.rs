@@ -18,3 +18,6 @@ pub async fn indexcss() -> impl IntoResponse {
         include_str!("./mainui/index.css")
     )
 }
+pub async fn ehtml() -> Html<&'static str>{
+    Html(include_str!("./e.html"))
+}

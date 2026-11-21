@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>SD Run Server</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: system-ui, sans-serif;
+            background: #1a1a2e;
+            color: #eee;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .panel {
+            background: #16213e;
+            padding: 32px;
+            border-radius: 12px;
+            width: 420px;
+            box-shadow: 0 8px 32px rgba(0,0,0,.4);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 24px;
+            font-size: 20px;
+            color: #e0e0ff;
+        }
+        label {
+            display: block;
+            margin-top: 14px;
+            font-size: 13px;
+            color: #aaa;
+        }
+        input {
+            width: 100%;
+            padding: 10px 12px;
+            margin-top: 4px;
+            border: 1px solid #333;
+            border-radius: 6px;
+            background: #0f3460;
+            color: #eee;
+            font-size: 14px;
+        }
+        input:focus {
+            outline: none;
+            border-color: #5dade2;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 24px;
+            border: none;
+            border-radius: 6px;
+            background: #5dade2;
+            color: #fff;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .2s;
+        }
+        button:hover { background: #4aa8dc; }
+        button:disabled { background: #555; cursor: not-allowed; }
+
+        #status {
+            margin-top: 16px;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 13px;
+            text-align: center;
+            display: none;
+        }
+        #status.ok   { background: #1b5e20; display: block; }
+        #status.err  { background: #b71c1c; display: block; }
+        #status.loading { background: #e65100; display: block; }
+    </style>
+</head>
+<body>
+<div class="panel">
+    <h1>🚀 SD Run Server</h1>
+
+    <label>dit</label>
+    <input id="dit" type="text" placeholder="path/to/dit.safetensors">
+
+    <label>clip</label>
+    <input id="clip" type="text" placeholder="path/to/clip.safetensors">
+
+    <label>vae</label>
+    <input id="vae" type="text" placeholder="path/to/vae.safetensors">
+
+    <label>lorapath</label>
+    <input id="lorapath" type="text" placeholder="path/to/lora/">
+
+    <button id="startBtn" onclick="startServer()">启动服务器</button>
+
+    <div id="status"></div>
+</div>
+
+<script>
+async function startServer() {
+    const btn = document.getElementById('startBtn');
+    const status = document.getElementById('status');
+
+    const payload = {
+        dit:     document.getElementById('dit').value.trim(),
+        clip:    document.getElementById('clip').value.trim(),
+        vae:     document.getElementById('vae').value.trim(),
+        lorapath: document.getElementById('lorapath').value.trim(),
+    };
+
+    // 简单校验
+    for (const [k, v] of Object.entries(payload)) {
+        if (!v) {
+            status.className = 'err';
+            status.textContent = `❌ ${k} 不能为空`;
+            return;
+        }
+    }
+
+    btn.disabled = true;
+    status.className = 'loading';
+    status.textContent = '⏳ 启动中...';
+
+    try {
+        const res = await fetch('/sdapi/win_runserver', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+        });
+
+        const data = await res.json();
+
+        if (data.state === 'Ok' || data.state === 'ok') {
+            status.className = 'ok';
+            status.textContent = `✅ 启动成功！port: ${data.text}`;
+        } else {
+            status.className = 'err';
+            status.textContent = `❌ ${data.text}`;
+        }
+    } catch (e) {
+        status.className = 'err';
+        status.textContent = `❌ 请求失败: ${e.message}`;
+    } finally {
+        btn.disabled = false;
+    }
+}
+</script>
+</body>
+</html>

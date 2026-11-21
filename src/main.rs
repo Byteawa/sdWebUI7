@@ -9,11 +9,12 @@ use std::sync::{Arc,Mutex};
 use axum::extract::State;
 use axum::routing::post;
 use axum::{Router,routing::get};
+use serde::{Deserialize,Serialize};
 pub use tokio;
 
-use crate::ui::mainui::{index,indexcss,indexjs};
+use crate::ui::mainui::{ehtml, index, indexcss, indexjs};
 use crate::prompt::prompt::{Cprompt, Sprompt};
-use crate::runserver::{win_run, win_runserver};
+use crate::runserver::{win_run, win_runserver,path_exists};
 pub use crate::config::prompt_config::{backup_prompt,clean_backup,init_config,read_prompt,writr_prompt,};
 pub use crate::runserver::Childandport;
 
@@ -79,8 +80,8 @@ async fn main() {
         .route("/", get(index))
         .nest("/assetsapi", assetsapi)
         .nest("/sdapi", sdapi)
-        .nest("/api", apiserver);
-
+        .nest("/api", apiserver)
+        .route("/e", get(ehtml));
         //.fallback(mainui);
 
     axum::serve(list,server).await.expect("what")
@@ -98,13 +99,13 @@ async fn main() {
 
 
 
-#[derive(Debug,Clone)]
-pub enum okanderr {
-    Ok,
+#[derive(Debug,Clone,Deserialize,Serialize)]
+pub enum Okanderr {
+    Oka,
     Error
 }
-#[derive(Debug,Clone)]
-pub struct res{
-    state:okanderr,
+#[derive(Debug,Clone,Deserialize,Serialize)]
+pub struct Res{
+    state:Okanderr,
     text:String,
 }
