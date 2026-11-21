@@ -23,15 +23,27 @@ pub use crate::runserver::Childandport;
 pub struct Apistate{
     p1:Arc<Sprompt>,
     p2:Cprompt,
-    sdserver:Arc<Mutex<Option<Childandport>>>,
 }
 impl Default for Apistate {
     fn default() -> Self {
         let mut a = Sprompt::default();
         a.init();
-        Apistate { p1: Arc::new(a),p2: Cprompt::default(),sdserver:Arc::new(Mutex::new(None))}
+        Apistate { p1: Arc::new(a),p2: Cprompt::default()}
     }
 }
+#[derive(Debug,Clone)]
+pub struct Sdapi{
+    pub sd:Arc<Mutex<Option<Childandport>>>,
+}
+impl Default for Sdapi {
+    fn default() -> Self {
+        Sdapi { sd:Arc::new(Mutex::new(None)) }
+    }    
+}
+
+
+
+
 
 
 
@@ -41,7 +53,7 @@ async fn main() {
     
     let list = tokio::net::TcpListener::bind("127.0.0.1:0").await.expect("Failed to bind to port");
     let state = Apistate::default();
-    
+    let mut sd = Sdapi::default();
     
     //win_backup_config().await;
     //win_clean_backup().await;
@@ -52,9 +64,12 @@ async fn main() {
     let apiserver:Router = axum::Router::new()
         .route("/included_prompt",get(prompt::included_prompt))
         .route("/prompt", get(prompt::prompt))
-        .route("/win_runserver",post(win_run))
         .with_state(state);
     
+    let sdapi:Router = Router::new()
+        .route("/win_runserver",post(win_run))
+        .with_state(sd);
+
     let assetsapi:Router = axum::Router::new()
         .route("/index.js", get(indexjs))
         .route("/index.css", get(indexcss));
@@ -63,6 +78,7 @@ async fn main() {
     let server:Router<()> = axum::Router::new()
         .route("/", get(index))
         .nest("/assetsapi", assetsapi)
+        .nest("/sdapi", sdapi)
         .nest("/api", apiserver);
 
         //.fallback(mainui);

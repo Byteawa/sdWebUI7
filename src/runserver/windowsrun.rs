@@ -7,7 +7,7 @@ use axum::response::IntoResponse;
 use tokio::process::Child;
 
 
-use crate::Apistate;
+use crate::{Apistate, Sdapi};
 
 
 
@@ -40,8 +40,8 @@ pub async fn win_runserver(dit: &str,clip: &str,vae: &str,lorapath: &str,post: &
     Ok(Childandport { child:child, port:port })
 }
 
-pub async fn win_run(State(Apistate):State<Apistate>)->impl IntoResponse{
-    let a = Apistate.sdserver.lock().expect("what");
+pub async fn win_run(State(api):State<Sdapi>)->impl IntoResponse{
+    let a = api.sd.lock().expect("what");
     if let Some(a) = a.as_ref() {
         return "";
     }else {
