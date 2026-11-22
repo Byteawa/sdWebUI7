@@ -104,37 +104,6 @@ pub struct Sd{
 
 
 
-/* 
-/// 异步判断路径是否存在（文件或目录）
-///
-/// - 输入：`String`
-/// - 路径不合法、无权限、不存在，均视为不存在
-pub async fn path_exists(path: &str) -> Result<bool,io::Error> {
-    let p = Path::new(&path);
-
-    // 1. 先做基础路径合法性检查
-    if p.as_os_str().is_empty() {
-        return Ok(false);
-    }
-    match tokio::fs::metadata(p).await {
-        Ok(_) => Ok(true),
-        Err(e) => Err(e),
-    }
-
-    // 2. 异步查询元数据
-    match tokio::fs::metadata(p).await {
-        Ok(_) => true,
-        Err(e) => {
-            use std::io::ErrorKind;
-            match e.kind() {
-                ErrorKind::NotFound => {println!("NotFound{:?}",p);false},
-                ErrorKind::PermissionDenied => {println!("PermissionDenied{:?}",p);false},
-                _ => {println!("what???");false},
-            }
-        }
-    }
-}
-*/
 
 
 
