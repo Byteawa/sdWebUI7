@@ -3,7 +3,7 @@ use std::sync::Arc;
 use axum::{Json, extract::State};
 use serde::{Serialize,Deserialize};
 
-use crate::{Apistate, prompt::prompt::{PromptKind::{Negative, Positive}}};
+use crate::{Promptapi, prompt::prompt::{PromptKind::{Negative, Positive}}};
 
 
 
@@ -72,13 +72,13 @@ impl<'a> IntoIterator for &'a Cprompt {
 //===========================================================================================================
 
 #[axum::debug_handler]
-pub async fn included_prompt(State(Apistate): State<Apistate>)->Json<Arc<Sprompt>>{
-    Json(Apistate.p1)
+pub async fn included_prompt(State(Promptapi): State<Promptapi>)->Json<Arc<Sprompt>>{
+    Json(Promptapi.p1)
 }
 
 #[axum::debug_handler]
-pub async fn prompt(State(Apistate): State<Apistate>)->Json<Cprompt>{
-    Json(Apistate.p2)
+pub async fn prompt(State(Promptapi): State<Promptapi>)->Json<Cprompt>{
+    Json(Promptapi.p2)
 }
 
 

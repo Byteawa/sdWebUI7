@@ -14,22 +14,22 @@ pub use tokio;
 
 use crate::ui::mainui::{ehtml, index, indexcss, indexjs};
 use crate::prompt::prompt::{Cprompt, Sprompt};
-use crate::runserver::{isrun, win_run, win_runserver,};
+use crate::runserver::{isrun, whatport, win_run, win_runserver,};
 pub use crate::config::prompt_config::{backup_prompt,clean_backup,init_config,read_prompt,writr_prompt,};
 pub use crate::runserver::Childandport;
 
 
 
 #[derive(Debug,Clone)]
-pub struct Apistate{
+pub struct Promptapi{
     p1:Arc<Sprompt>,
     p2:Cprompt,
 }
-impl Default for Apistate {
+impl Default for Promptapi {
     fn default() -> Self {
         let mut a = Sprompt::default();
         a.init();
-        Apistate { p1: Arc::new(a),p2: Cprompt::default()}
+        Promptapi { p1: Arc::new(a),p2: Cprompt::default()}
     }
 }
 #[derive(Debug,Clone)]
@@ -53,7 +53,7 @@ async fn main() {
     println!("Hello");
     
     let list = tokio::net::TcpListener::bind("127.0.0.1:0").await.expect("Failed to bind to port");
-    let state = Apistate::default();
+    let state = Promptapi::default();
     let mut sd = Sdapi::default();
     
     //win_backup_config().await;
@@ -69,8 +69,8 @@ async fn main() {
     
     let sdapi:Router = Router::new()
         .route("/win_runserver",post(win_run))
-        .route("isrun", get(isrun))
-        //.route("whatport", method_router)
+        .route("/isrun", get(isrun))
+        .route("/whatport", get(whatport))
         .with_state(sd);
 
     let assetsapi:Router = axum::Router::new()

@@ -1,7 +1,7 @@
 
 use axum::{Json, extract::State};
 
-use crate::{Okanderr::{Error, Oka}, Res, Sdapi};
+use crate::{Okanderr::{Error, Oka}, Res, Sdapi, runserver::windowsrun::Sd};
 
 
 
@@ -24,4 +24,30 @@ pub async fn isrun(State(Sdapi):State<Sdapi>) -> Json<Res>{
         }
         //_=>{Json(Res { state: Error, text: "what/理论上不会出现".to_string() })}
     }
+}
+pub async fn whatport(State(Sdapi): State<Sdapi>) -> Json<Res> {
+    let mut sd = Sdapi.sd.lock().unwrap();
+
+    let port = match &mut *sd {
+        Some(o) => match o.child.try_wait() {
+            Ok(None) => o.port,
+            _ => {
+                return Json(Res {
+                    state: Error,
+                    text: "no".to_string(),
+                });
+            }
+        },
+        None => {
+            return Json(Res {
+                state: Error,
+                text: "no".to_string(),
+            });
+        }
+    };
+
+    Json(Res {
+        state: Oka,
+        text: port.to_string(),
+    })
 }

@@ -10,7 +10,7 @@ use axum::response::IntoResponse;
 use tokio::process::Child;
 use std::result::Result::Ok;
 use crate::Okanderr::{Error, Oka};
-use crate::{Apistate, Sdapi, Okanderr, Res};
+use crate::{Promptapi, Sdapi, Okanderr, Res};
 
 
 
