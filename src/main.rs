@@ -14,7 +14,7 @@ pub use tokio;
 
 use crate::ui::mainui::{ehtml, index, indexcss, indexjs};
 use crate::prompt::prompt::{Cprompt, Sprompt};
-use crate::runserver::{isrun, whatport, win_run, win_runserver,};
+use crate::runserver::{/*exitsd*/ isrun, whatport, win_run, win_runserver};
 pub use crate::config::prompt_config::{backup_prompt,clean_backup,init_config,read_prompt,writr_prompt,};
 pub use crate::runserver::Childandport;
 
@@ -71,6 +71,7 @@ async fn main() {
         .route("/win_runserver",post(win_run))
         .route("/isrun", get(isrun))
         .route("/whatport", get(whatport))
+        //.route("/exit", get(exitsd))
         .with_state(sd);
 
     let assetsapi:Router = axum::Router::new()

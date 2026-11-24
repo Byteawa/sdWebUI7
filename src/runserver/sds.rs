@@ -15,14 +15,11 @@ pub async fn isrun(State(Sdapi):State<Sdapi>) -> Json<Res>{
                     match o {
                         Some(s) => {Json(Res { state: Error, text: format!("is exit/已经退出：{:?}",s)})}
                         None => {Json(Res { state: Oka, text: "isrun/正在运行".to_string() })}
-                     //_ => {Json(Res { state: Error, text: "what/理论上不会出现".to_string() })}
                     }
                 }
                 Err(e) => {Json(Res { state: Error, text: format!("Err/错误：{}",e)})}
-                //_ => {Json(Res { state: Error, text: "what/理论上不会出现".to_string() })}
             }
         }
-        //_=>{Json(Res { state: Error, text: "what/理论上不会出现".to_string() })}
     }
 }
 pub async fn whatport(State(Sdapi): State<Sdapi>) -> Json<Res> {
@@ -51,3 +48,12 @@ pub async fn whatport(State(Sdapi): State<Sdapi>) -> Json<Res> {
         text: port.to_string(),
     })
 }
+
+
+
+/* 
+#[axum::debug_handler]
+pub async fn exitsd(State(Sdapi):State<Sdapi>)->Json<Res>{
+
+}
+*/
